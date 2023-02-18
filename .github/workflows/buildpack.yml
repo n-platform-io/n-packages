@@ -1,0 +1,19 @@
+name: Build packages
+
+on:
+  pull_request:
+
+jobs:
+  build_all:
+    name: Build all known packages
+    runs-on: self-hosted
+    container:
+      image: archlinux:latest
+      options: --privileged --user nobody
+    steps:
+      - name: Install and update packages
+        run: pacman --noconfirm -Syyu curl python python-pip sudo
+      - name: Install needed packages
+        run: pip install yaml
+      - name: Test building
+        run: makepkg
