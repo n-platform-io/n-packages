@@ -20,4 +20,4 @@ jobs:
       - name: Change the owner
         run: sudo chown -R nobody:nobody .
       - name: Test building
-        run: sudo -u nobody makepkg
+        run: sudo -u nobody makepkg -h
