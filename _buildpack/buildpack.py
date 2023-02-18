@@ -150,14 +150,14 @@ if args.action == "buildall":
     for element in rundeps:
         print(f"Building runtime dependency: {element}")
         os.chdir(repo_dir)
-        os.chdir(f"package/{element}")
+        os.chdir(f"packages/{element}")
         subprocess.run(f"PKGDEST={repo_dir}/out makepkg -sr", shell=True, check=True)
 
 
 elif args.action == "build":
     print(f"Building runtime dependency: {args.package}")
     os.chdir(repo_dir)
-    os.chdir(f"package/{args.package}")
+    os.chdir(f"packages/{args.package}")
     subprocess.run(f"PKGDEST={repo_dir}/out makepkg -sr", shell=True, check=True)
 
 elif args.action == "check":
