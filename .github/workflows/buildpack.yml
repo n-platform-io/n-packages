@@ -14,7 +14,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Install and update packages
-        run: pacman --noconfirm -Syyu curl python python-pip sudo fakeroot pacman
+        run: pacman --noconfirm -Syyu curl python python-pip sudo fakeroot pacman base-devel
       - name: Install needed packages
         run: pip install -r requirements.txt
       - name: Change the owner
