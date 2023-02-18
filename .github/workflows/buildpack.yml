@@ -11,6 +11,8 @@ jobs:
       image: archlinux:latest
       options: --privileged
     steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
       - name: Install and update packages
         run: pacman --noconfirm -Syyu curl python python-pip sudo
       - name: Install needed packages
