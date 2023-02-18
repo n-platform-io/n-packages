@@ -14,6 +14,6 @@ jobs:
       - name: Install and update packages
         run: pacman --noconfirm -Syyu curl python python-pip sudo
       - name: Install needed packages
-        run: pip install yaml
+        run: pip install -r requirements.txt
       - name: Test building
         run: sudo -u nobody makepkg
