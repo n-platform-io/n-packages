@@ -20,4 +20,4 @@ jobs:
       - name: Change the owner
         run: sudo chown -R nobody:nobody .
       - name: Test building
-        run: sudo -u nobody makepkg -h
+        run: sudo -u python _buildpack/buildpack.py --action build --package pacman

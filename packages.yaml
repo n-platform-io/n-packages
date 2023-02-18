@@ -3,36 +3,6 @@ version: 1
 packages:
   pacman:
     requirements:
-      - bash
-      - coreutils
-      - curl
-      - gawk
-      - gettext
-      - glibc
-      - gnupg
-      - gpgme
-      - grep
-      - libarchive
-      - pacman-mirrorlist
-    requirements-make:
-      - perl-locale-gettext
-      - asciidoc
-      - doxygen
-      - meson
-    requirements-check:
-      - fakeroot
-      - check
-  libka:
-    requirements:
-    requirements-make:
-    requirements-check:
-      - libdupa
-  libdupa:
-    requirements:
-    requirements-make:
-    requirements-check:
-  libdupa2:
-    requirements:
     requirements-make:
     requirements-check:
 
