@@ -17,5 +17,7 @@ jobs:
         run: pacman --noconfirm -Syyu curl python python-pip sudo
       - name: Install needed packages
         run: pip install -r requirements.txt
+      - name: Change the owner
+        run: sudo chown -R nobody:nobody .
       - name: Test building
         run: sudo -u nobody makepkg
