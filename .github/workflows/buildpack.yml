@@ -14,10 +14,12 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Install and update packages
-        run: pacman --noconfirm -Syyu curl python python-pip sudo
+        run: pacman --noconfirm -Syyu curl python python-pip sudo fakeroot pacman base-devel
       - name: Install needed packages
         run: pip install -r requirements.txt
+      - name: Privilege escalation
+        run: echo "nobody ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
       - name: Change the owner
         run: sudo chown -R nobody:nobody .
       - name: Test building
-        run: sudo -u nobody makepkg -h
+        run: sudo -u nobody python _buildpack/buildpack.py --action build --package pacman
