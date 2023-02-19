@@ -99,7 +99,6 @@ def resolve_dependencies(pks: dict, package: str = "") -> (list, list, list):
             to_run[pkg] = to_runp
             to_build[pkg] = to_make
 
-
         # print(f"checkdeps for {package}: {pkg_checkdeps}")
         for pkg in pkg_checkdeps:
             to_runp, to_make, to_chk = resolve_dependencies(_p, pkg)
@@ -145,6 +144,21 @@ print(args)
 with open('packages.yaml', 'r') as f:
     packages = yaml.full_load(f)
 
+if args.action == "reposync_danger":
+    print(packages)
+    for package, v in packages['packages'].items():
+        print(package, v)
+        if not "requirements" in packages.keys():
+            packages['packages'][package] = dict()
+            print(f"Processing: {packages['packages'][package]}")
+            packages['packages'][package]['requirements'] = list()
+            packages['packages'][package]['requirements-make'] = list()
+            packages['packages'][package]['requirements-check'] = list()
+
+    print(packages)
+    with open("packages.yaml", "w") as f:
+        yaml.dump(packages, f)
+
 if args.action == "buildall":
     rundeps, builddeps, checkdeps = resolve_dependencies(packages)
     for element in rundeps:
@@ -168,21 +182,21 @@ elif args.action == "check":
     print(f"checkdeps: {checkdeps}")
     for dep in rundeps:
         try:
-            os.chdir("packages/"+dep)
+            os.chdir("packages/" + dep)
         except OSError:
             err = True
             print(f"ERR: There is no package {dep} required to run {args.package}")
 
     for dep in builddeps:
         try:
-            os.chdir("packages/"+dep)
+            os.chdir("packages/" + dep)
         except OSError:
             err = True
             print(f"ERR: There is no package {dep} required to build {args.package}")
 
     for dep in checkdeps:
         try:
-            os.chdir("packages/"+dep)
+            os.chdir("packages/" + dep)
         except OSError:
             err = True
             print(f"ERR: There is no package {dep} required to check {args.package}")
@@ -198,21 +212,21 @@ elif args.action == "checkall":
     print(f"Packages will be checked in this order: {checkdeps}")
     for dep in rundeps:
         try:
-            os.chdir("packages/"+dep)
+            os.chdir("packages/" + dep)
         except OSError:
             err = True
             print(f"ERR: There is no package {dep} required to run something in OS")
 
     for dep in builddeps:
         try:
-            os.chdir("packages/"+dep)
+            os.chdir("packages/" + dep)
         except OSError:
             err = True
             print(f"ERR: There is no package {dep} required to build OS")
 
     for dep in checkdeps:
         try:
-            os.chdir("packages/"+dep)
+            os.chdir("packages/" + dep)
         except OSError:
             err = True
             print(f"ERR: There is no package {dep} required to perform tests in OS")
