@@ -1,0 +1,30 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=npm-check-updates
+pkgdesc='Find newer versions of dependencies than what your package.json or bower.json allows'
+pkgver=16.7.2
+pkgrel=1
+arch=('any')
+url='https://github.com/tjunnone/npm-check-updates'
+license=('Apache')
+depends=('nodejs-nopt' 'npm' 'semver')
+makedepends=('git')
+source=(https://registry.npmjs.org/$pkgname/-/$pkgname-$pkgver.tgz)
+noextract=($pkgname-$pkgver.tgz)
+sha512sums=('180f9ee664140c24a8174215ea0890d2cf5a2d3c247189f6c007cb9463f91f83ff6a126f5208566bb2d417b8edc98791a857a70662c3463a2a025d33341e9b34')
+
+package() {
+  npm install -g --prefix "$pkgdir"/usr "$srcdir"/$pkgname-$pkgver.tgz
+
+  # Experimental dedup
+  rm -r "$pkgdir"/usr/lib/node_modules/$pkgname/node_modules/{,.bin/}nopt
+  rm -r "$pkgdir"/usr/lib/node_modules/$pkgname/node_modules/{,.bin/}semver
+
+  # Non-deterministic race in npm gives 777 permissions to random directories.
+  # See https://github.com/npm/npm/issues/9359 for details.
+  chmod -R u=rwX,go=rX "$pkgdir"
+
+  # npm installs package.json owned by build user
+  # https://bugs.archlinux.org/task/63396
+  chown -R root:root "$pkgdir"
+}

@@ -1,0 +1,28 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: csslayer <wengxt AT gmail com>
+
+pkgname=fcitx5-table-extra
+pkgver=5.0.12
+pkgrel=1
+pkgdesc="Extra tables for Fcitx5"
+arch=('any')
+url="https://github.com/fcitx/fcitx5-table-extra"
+license=('GPL')
+depends=('fcitx5-chinese-addons')
+makedepends=('extra-cmake-modules' 'boost')
+source=("https://download.fcitx-im.org/fcitx5/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
+sha512sums=('2da14599ca745e15573af8079b0ad70ffe0ba4981e0268daf0d8f001f5ba53cb19c5c6af32982d6c12472178e56ce6a4c322581e79b6d20d2127e2fcc9b29b28'
+            'SKIP')
+validpgpkeys=('2CC8A0609AD2A479C65B6D5C8E8B898CBF2412F9') # Weng Xuetian <wengxt@gmail.com>
+
+build(){
+  cd $pkgname-$pkgver
+
+  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib .
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,43 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Maintainer: Daniel M. Capella <polyzen@archlinux.org>
+
+pkgname=eslint
+pkgver=8.34.0
+pkgrel=1
+pkgdesc='An AST-based pattern checker for JavaScript'
+arch=('any')
+url='https://eslint.org'
+license=('MIT')
+depends=('acorn' 'nodejs')
+makedepends=('npm' 'rsync')
+options=('!emptydirs')
+source=("https://github.com/$pkgname/$pkgname/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+b2sums=('750886ad0905c438bf6492d33117201c76dd342d590c591cb09fddd47c11016eaa60e8d5dc162a5d563e9c98f69ab2727a20c78a5dfb5757e4fc7db9a5b7194f')
+
+prepare() {
+  cd $pkgname-$pkgver
+  npm install
+}
+
+check() {
+  cd $pkgname-$pkgver
+  node Makefile mocha
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  npm prune --production
+
+  _npmdir=/usr/lib/node_modules/$pkgname
+  install -d "$pkgdir"/usr/bin
+  ln -s $_npmdir/bin/$pkgname.js "$pkgdir"/usr/bin/$pkgname
+  install -Dt "$pkgdir"/$_npmdir/bin bin/$pkgname.js
+  rsync -r --exclude .cache --exclude .package-lock.json conf lib messages \
+    node_modules package.json "$pkgdir"/$_npmdir
+  install -Dm644 -t "$pkgdir"/usr/share/doc/$pkgname README.md
+  install -Dm644 -t "$pkgdir"/usr/share/licenses/$pkgname LICENSE
+
+  # Experimental dedup
+  rm -r "$pkgdir"/$_npmdir/node_modules/acorn
+}

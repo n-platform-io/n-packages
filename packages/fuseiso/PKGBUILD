@@ -1,0 +1,41 @@
+# Contributor: Shinlun Hsieh <yngwiexx@yahoo.com.tw>
+# Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
+
+pkgname=fuseiso
+pkgver=20070708
+pkgrel=8
+pkgdesc="FUSE module to mount ISO filesystem images"
+arch=('x86_64')
+url="https://sourceforge.net/projects/fuseiso/"
+license=('GPL')
+depends=('fuse2' 'glib2' 'zlib')
+makedepends=('pkgconfig')
+source=("https://ubiz.ru/dm/${pkgname}-${pkgver}.tar.bz2"
+	00-support_large_iso.patch
+	01-fix_typo.patch
+	02-prevent-buffer-overflow.patch
+	03-prevent-integer-overflow.patch)
+sha256sums=('8b242e077d66cd20900c59c905ff90b4c934b0613dd5a20facb0b1260ac5fd88'
+            '6555b67208a455740ea3a2d7872ab68b3e46909ad774bddbe0432d2bcb35cdcc'
+            'afa848227abf6ea061ee298b621c670c04431a1080616548fb7182305f2a1d2c'
+            'def5dd8dc20ad44ec659c20472744db6329684fc1d53f451e28bae655c799a8f'
+            '520e01cd544d21e6400c5d63bcaf57e344fbb59406a6a61636dc0d4cb6447bd1')
+
+build() {
+  cd ${pkgname}-${pkgver}
+
+  # Patchset from debian
+  patch -Np1 -i "${srcdir}"/00-support_large_iso.patch
+  patch -Np1 -i "${srcdir}"/01-fix_typo.patch
+  patch -Np1 -i "${srcdir}"/02-prevent-buffer-overflow.patch
+  patch -Np1 -i "${srcdir}"/03-prevent-integer-overflow.patch
+
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+}

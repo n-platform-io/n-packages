@@ -1,0 +1,46 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=libgnomekbd
+pkgver=3.28.1
+pkgrel=1
+epoch=1
+pkgdesc="Keyboard management library"
+url="https://gitlab.gnome.org/GNOME/libgnomekbd"
+arch=(x86_64)
+license=(LGPL)
+depends=(libxklavier gtk3 dconf)
+makedepends=(gobject-introspection git meson)
+provides=(libgnomekbd{,ui}.so)
+_commit=1ca55e9f3644eb20ccee1042a7fa4158465f4aef  # tags/3.28.1^0
+source=("git+https://gitlab.gnome.org/GNOME/libgnomekbd.git#commit=$_commit"
+        meson.diff)
+sha256sums=('SKIP'
+            'd41afc90476de55e1281172b538aa764a4697ff487d11660a7b02503c0630430')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+
+  # Fixes for meson build
+  git apply -3 ../meson.diff
+}
+
+build() {
+  arch-meson $pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

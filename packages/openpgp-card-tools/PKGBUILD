@@ -1,0 +1,45 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgname=openpgp-card-tools
+pkgver=0.9.1
+pkgrel=1
+pkgdesc="CLI tool to inspect, manage and use OpenPGP cards"
+arch=(x86_64)
+url="https://gitlab.com/openpgp-card/openpgp-card"
+license=(Apache)
+depends=(ccid gcc-libs glibc gmp)
+makedepends=(bzip2 cargo clang nettle pcsclite)
+source=($url/-/archive/tools/v$pkgver/$pkgname-v$pkgver.tar.gz)
+sha512sums=('763fcadcb84b64f8b3a8efe84e066c117d218dd2de42ca5e48ebb2edc56eb5a943192ab468fab6492ec32935527bb69c3bb0f8941846aab30fbccdaa6e8ca166')
+b2sums=('677fe8ff18fc426fef53847c355b7e7a07b9989163ebf40ec9a34c7370855b0cf662ab782b2191cdb0a08ba372ea37a0166a9dd88a7330f909fbe0dd147ca011')
+
+prepare() {
+  cd $pkgname-v$pkgver
+  # add --locked once there is a lock file: https://gitlab.com/openpgp-card/openpgp-card/-/issues/63
+  cargo fetch --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+  cd $pkgname-v$pkgver
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  cargo build --frozen --release --bin opgpcard
+}
+
+check() {
+  cd $pkgname-v$pkgver
+  export RUSTUP_TOOLCHAIN=stable
+  cargo test --frozen --all-features
+}
+
+package() {
+  depends+=(
+    bzip2 libbz2.so
+    nettle libhogweed.so libnettle.so
+    pcsclite libpcsclite.so
+  )
+
+  cd $pkgname-v$pkgver
+  install -vDm 755 target/release/opgpcard -t "$pkgdir/usr/bin/"
+  install -vDm 644 {tools/scripting,README}.md -t "$pkgdir/usr/share/doc/$pkgname/"
+}

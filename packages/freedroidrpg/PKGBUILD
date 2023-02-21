@@ -1,0 +1,28 @@
+# Maintainer: Jaroslav Lichtblau <svetlemodry@archlinux.org>
+# Contributor: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: nut543 <kfs1@online.no>
+
+pkgname='freedroidrpg'
+pkgdesc="Isometric 3D role playing game taking place in the future, on Earth"
+pkgver=1.0rc3
+pkgrel=1
+arch=('x86_64')
+url="https://gitlab.com/freedroid/freedroid-src"
+license=('GPL')
+depends=('sdl_mixer' 'sdl_image' 'sdl_gfx' 'libogg' 'libvorbis' 'libgl' 'glu' 'glew' 'hicolor-icon-theme')
+makedepends=('mesa' 'python')
+optdepends=('python' 'espeak-ng-espeak')
+source=(https://ftp.osuosl.org/pub/freedroid/freedroidRPG-1.0/freedroidRPG-$pkgver.tar.gz)
+sha256sums=('3031faa530cb1664fe3946e7a31e3ebbb40f7e1f54af7d05e34d473b5e850bc7')
+
+build() {
+  cd $pkgname-${pkgver^^}
+  export CPPFLAGS="$CPPFLAGS -fcommon -fPIE"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd $pkgname-${pkgver^^}
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,54 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Ionut Biru <ibiru@archlinux.org>
+
+pkgname=gnome-contacts
+pkgver=43.1
+pkgrel=1
+pkgdesc="Contacts Manager for GNOME"
+url="https://wiki.gnome.org/Apps/Contacts"
+arch=(x86_64)
+license=(GPL2)
+depends=(
+  evolution-data-server
+  folks
+  gnome-online-accounts
+  gtk4
+  libadwaita
+  libgee
+  libportal-gtk4
+)
+makedepends=(
+  appstream-glib
+  git
+  gobject-introspection
+  meson
+  vala
+)
+groups=(gnome)
+_commit=8adf521f7a288dd30b90d9730dff617c74acfcfb  # tags/43.1^0
+source=("git+https://gitlab.gnome.org/GNOME/gnome-contacts.git#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+}
+
+build() {
+  arch-meson $pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

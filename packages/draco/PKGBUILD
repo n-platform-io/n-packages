@@ -1,0 +1,36 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: Otreblan <otreblain@gmail.com>
+
+pkgname=draco
+pkgver=1.5.5
+pkgrel=2
+pkgdesc="A library for compressing and decompressing 3D geometric meshes and point clouds"
+arch=('x86_64')
+url="https://github.com/google/draco"
+license=('Apache')
+makedepends=('cmake' 'ninja')
+depends=('gcc-libs')
+options=('staticlibs')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/$pkgver.tar.gz")
+sha256sums=('6b7994150bbc513abcdbe22ad778d6b2df10fc8cdc7035e916985b2a209ab826')
+
+build() {
+	cd "$srcdir/$pkgname-$pkgver"
+
+	cmake \
+        -Bbuild \
+        -GNinja \
+		-DCMAKE_UNITY_BUILD=ON \
+		-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_SHARED_LIBS=ON
+
+	ninja -C build
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+
+	DESTDIR="$pkgdir" ninja -C build install
+}

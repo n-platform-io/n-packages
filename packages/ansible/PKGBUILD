@@ -1,0 +1,37 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+pkgname=ansible
+pkgver=7.2.0
+pkgrel=1
+pkgdesc='Official assortment of Ansible collections'
+arch=('any')
+url='https://pypi.org/project/ansible/'
+license=('GPL3')
+depends=('python' 'ansible-core')
+provides=('python-ansible_collections')
+optdepends=('python-argcomplete: shell completions'
+            'python-pyopenssl: openssl modules'
+            'python-dnspython: for dig lookup'
+            'python-ovirt-engine-sdk: ovirt support'
+            'python-boto3: aws_s3 module'
+            'python-ldap: ldap support'
+            'python-proxmoxer: proxmos modules'
+            'python-openstacksdk: OpenStack module'
+            'python-pynetbox: NetBox module'
+            'python-ldap: LDAP modules'
+            'python-keyring: Keyring module'
+            'python-python-github3py: GitHub module'
+            'acme-tiny: openssl_certificate module')
+makedepends=('python-setuptools')
+source=("https://pypi.python.org/packages/source/a/ansible/ansible-${pkgver}.tar.gz")
+sha512sums=('30d7f912cd6b2e41f1e5d880b014f00d332b4cc533512be8de885e95b63cf890ffb38a616de74c6b7fd9d6a961b7e2a1843bfe758fbcd9f3c962f1c856f20725')
+
+build() {
+  cd ansible-${pkgver}
+  python setup.py build
+}
+
+package() {
+  cd ansible-${pkgver}
+  python setup.py install -O1 --root="${pkgdir}"
+  install -Dm644 COPYING "${pkgdir}"/usr/share/doc/${pkgname}/COPYING
+}

@@ -1,0 +1,53 @@
+# Maintainer: George Rawlinson <grawlinson@archlinux.org>
+# Contributor: X0rg
+
+pkgname=libcpuid
+pkgver=0.6.2
+pkgrel=1
+pkgdesc='A small C library for x86 CPU detection and feature extraction'
+arch=('x86_64')
+url='http://libcpuid.sourceforge.net'
+license=('BSD')
+depends=('glibc')
+makedepends=(
+  'git'
+  'cmake'
+  'ninja'
+  'doxygen'
+  'python'
+  'graphviz'
+)
+_commit='3d1ed275c9359e1ae51c4313942e31e838c77ebf'
+source=("$pkgname::git+https://github.com/anrieff/libcpuid#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+
+  git describe --tags | sed 's/^v//'
+}
+
+build() {
+	cmake \
+    -S "$pkgname" \
+    -B build \
+    -G Ninja \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_INSTALL_PREFIX=/usr \
+    -D LIBCPUID_TESTS=ON
+
+	cmake --build build
+}
+
+check() {
+  cd build
+
+  ninja consistency test-old
+}
+
+package() {
+	DESTDIR="$pkgdir" cmake --install build
+
+  # license
+	install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" "$pkgname/COPYING"
+}

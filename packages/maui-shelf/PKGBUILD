@@ -1,0 +1,24 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+
+pkgname=maui-shelf
+_pkgname=shelf
+pkgver=2.2.1
+pkgrel=1
+pkgdesc='Document and EBook collection manager'
+url='https://mauikit.org/'
+arch=(x86_64)
+license=(GPL3)
+depends=(mauikit-filebrowsing mauikit-texteditor poppler-qt5 hicolor-icon-theme)
+makedepends=(extra-cmake-modules)
+groups=(maui)
+source=(https://download.kde.org/stable/maui/$_pkgname/$pkgver/$_pkgname-$pkgver.tar.xz)
+sha256sums=('b5359fffcec4772d85b2a3afec69bb51be94be0a8556c54258c3dc827fae44c0')
+
+build() {
+  cmake -B build -S $_pkgname-$pkgver
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

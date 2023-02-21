@@ -1,0 +1,144 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+# Contributor: Eric Bélanger <eric@archlinux.org>
+
+_name=Audacity
+pkgbase=audacity
+pkgname=(audacity audacity-docs)
+pkgver=3.2.4
+pkgrel=1
+epoch=1
+pkgdesc="A program that lets you manipulate digital audio waveforms"
+arch=(x86_64)
+url="https://audacityteam.org"
+license=(GPL3)
+makedepends=(
+  alsa-lib
+  chrpath
+  cmake
+  ffmpeg
+  flac
+  gcc-libs
+  glibc
+  gdk-pixbuf2
+  glib2
+  gtk3
+  jack
+  lame
+  libid3tag
+  libmad
+  libogg
+  libsbsms
+  libsndfile
+  libsoxr
+  libvorbis
+  lilv
+  lv2
+  mpg123
+  portaudio
+  portmidi
+  portsmf
+  python
+  soundtouch
+  sqlite
+  suil
+  twolame
+  wavpack
+  wxwidgets-gtk3
+  vamp-plugin-sdk
+  vst3sdk
+)
+source=(
+  https://github.com/audacity/audacity/archive/refs/tags/$_name-$pkgver.tar.gz
+  https://github.com/$pkgbase/$pkgbase/releases/download/$_name-$pkgver/$pkgbase-manual-$pkgver.tar.gz
+)
+sha512sums=('d69459839760f0db7d23ad5ee5601e0a0b8e918a7f9ad6773bb45b525f732d09ff0fc6ca59c6400b62d7b0b905411dd97673b6d6f2102c9ed549e9f833b60a96'
+            '6f2d6339dfe150a1eb57a42a957154237c6ade0beb0a2a06ed2c59b5d23ff6b40d1dea0bc91851951a7df26aeb1c43c79f85ac71ba5361165f8524dbf1301424')
+b2sums=('df36f5f7162cc6303b2bcb4861f0b418fd3dfd97a8d664b9c0fe1e84b57df5342864a82e7652c2e706e723b6eb6faded50a0ce4fb96f36ac1e6ba48726db40a7'
+        'ba2cf1a3b13f59bf03014fd301e3e50654d39fa0a79076760b68edca725513ea18c7be6e68452471e25274597e0629fff2964a135a81d1c54e0c0ae7b55f94fc')
+
+build() {
+  local cmake_options=(
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D AUDACITY_BUILD_LEVEL=2
+    -D audacity_conan_enabled=OFF
+    -D audacity_has_networking=OFF
+    -D audacity_has_crashreports=OFF
+    -D audacity_has_updates_check=OFF
+    -D audacity_has_sentry_reporting=OFF
+    -D audacity_lib_preference=system
+    -D audacity_obey_system_dependencies=ON
+    -D audacity_use_vst3sdk=system
+  )
+
+  export VST3SDK='/usr/share/vst3sdk'
+  export CFLAGS+=" -DNDEBUG"
+  export CXXFLAGS+=" -DNDEBUG"
+  cmake "${cmake_options[@]}" -B build -S $pkgname-$_name-$pkgver -Wno-dev
+  cmake --build build
+}
+
+check() {
+  ctest --test-dir build --output-on-failure
+}
+
+package_audacity() {
+  license+=(BSD)
+  groups=(pro-audio)
+  depends=(
+    alsa-lib libasound.so
+    flac libFLAC.so libFLAC++.so
+    gcc-libs
+    glibc
+    gdk-pixbuf2 libgdk_pixbuf-2.0.so
+    glib2 libglib-2.0.so libgobject-2.0.so
+    gtk3 libgdk-3.so libgtk-3.so
+    jack  # likely dlopen'ed
+    lame  # likely dlopen'ed
+    libid3tag libid3tag.so
+    libmad
+    libogg libogg.so
+    libsbsms libsbsms.so
+    libsndfile libsndfile.so
+    libsoxr
+    libvorbis libvorbis.so libvorbisenc.so libvorbisfile.so
+    lilv liblilv-0.so
+    mpg123 libmpg123.so
+    portaudio libportaudio.so
+    portmidi libportmidi.so
+    portsmf libportSMF.so
+    python
+    soundtouch
+    sqlite libsqlite3.so
+    suil libsuil-0.so
+    twolame libtwolame.so
+    wxwidgets-gtk3
+    vamp-plugin-sdk libvamp-hostsdk.so
+    wavpack
+  )
+  optdepends=(
+    'audacity-docs: for documentation'
+    'ffmpeg: for additional import/export capabilities'
+  )
+  provides=(ladspa-host lv2-host vamp-host vst-host vst3-host)
+
+
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $pkgname-$_name-$pkgver/lib-src/libnyquist/nyquist/license.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE.nyquist"
+
+  # remove unsafe RPATH: https://github.com/audacity/audacity/issues/3289
+  (
+  cd "$pkgdir/usr/lib/$pkgname/modules"
+  chrpath --delete mod-script-pipe.so
+  chmod 755 mod-script-pipe.so
+  )
+  # NOTE: private libraries are public: https://github.com/audacity/audacity/issues/3812
+}
+
+package_audacity-docs() {
+  license+=(CCPL)
+  pkgdesc+=" - documentation"
+
+  install -vdm 755 "$pkgdir/usr/share/doc/$pkgbase/html/"
+  cp -av help/manual/* "$pkgdir/usr/share/doc/$pkgbase/html/"
+}

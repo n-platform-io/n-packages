@@ -1,0 +1,40 @@
+# Maintainer: Orhun Parmaksız <orhun@archlinux.org>
+
+pkgname=cargo-tauri
+_pkgname=tauri
+pkgver=1.2.3
+pkgrel=1
+pkgdesc="Command line interface for building Tauri apps"
+arch=('x86_64')
+url="https://github.com/tauri-apps/tauri"
+license=('MIT' 'Apache')
+depends=('gcc-libs')
+makedepends=('cargo')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/$_pkgname-v$pkgver.tar.gz")
+sha512sums=('9dc407cf4987953498cad38ab86e4005ff32a37bd5a83219f0760159ff54e080d28e29374a52aa484633358a30638eaa8f003161749b368c661bef24172e36e0')
+options=('!lto')
+
+prepare() {
+  mv "$_pkgname-$_pkgname-v$pkgver" "$pkgname-$pkgver"
+  cd "$pkgname-$pkgver/tooling/cli"
+  cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+  cd "$pkgname-$pkgver/tooling/cli"
+  cargo build --release --frozen
+}
+
+check() {
+  cd "$pkgname-$pkgver/tooling/cli"
+  cargo test --frozen
+}
+
+package() {
+  cd "$pkgname-$pkgver/tooling/cli"
+  install -Dm 755 "target/release/$pkgname" -t "$pkgdir/usr/bin"
+  install -Dm 644 README.md -t "$pkgdir/usr/share/doc/$pkgname"
+  install -Dm 644 LICENSE_MIT -t "$pkgdir/usr/share/licenses/$pkgname"
+}
+
+# vim: ts=2 sw=2 et:

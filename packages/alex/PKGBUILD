@@ -1,0 +1,39 @@
+# Maintainer: Alexander F. Rødseth <xyproto@archlinux.org>
+# Contributor: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: Vesa Kaihlavirta <vegai@iki.fi>
+# Contributor: Philip Nilsson <pnilsson@nullref.se>
+
+pkgname=alex
+pkgver=3.2.7.1
+pkgrel=2
+pkgdesc='Lexical analyser generator for Haskell'
+arch=(x86_64)
+url='https://hackage.haskell.org/package/alex'
+license=(BSD)
+depends=(ghc-libs)
+makedepends=(ghc happy)
+source=("https://hackage.haskell.org/packages/archive/$pkgname/$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('f8ff12de874b905449fdda0d704f9e4ac30fa3e60e965f82d7bb2d6e3974cf926f85134d32878c48faf0ec4a002ea7240cf6696e1cbcad25a0eebb9d1850cc07')
+
+build() {
+  cd $pkgname-$pkgver
+  runghc Setup.hs configure \
+    --prefix=/usr \
+    --datasubdir=$pkgname \
+    --enable-executable-dynamic \
+    --ghc-option=-optl-Wl\,-z\,relro\,-z\,now \
+    --ghc-option='-pie'
+  runghc Setup.hs build
+}
+
+package() {
+  cd $pkgname-$pkgver
+  runghc Setup.hs copy --destdir="$pkgdir"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/alex/BSD3"
+
+  # Doc only contains the license
+  rm -rf "$pkgdir/usr/share/doc"
+}
+
+# getver: hackage.haskell.org/package/alex/changelog
+# vim: ts=2 sw=2 et:

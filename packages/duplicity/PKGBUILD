@@ -1,0 +1,43 @@
+# Maintainer: Lukas Fleischer <lfleischer@archlinux.org>
+# Maintainer: George Rawlinson <grawlinson@archlinux.org>
+# Contributor: Kaiting Chen <kaitocracy@gmail.com>
+# Contributor: Aaron Schaefer <aaron@elasticdog.com>
+
+pkgname=duplicity
+pkgver=1.2.1
+pkgrel=1
+pkgdesc='A utility for encrypted, bandwidth-efficient backups using the rsync algorithm'
+arch=('x86_64')
+url='https://duplicity.gitlab.io/'
+license=('GPL')
+depends=('gnupg' 'librsync' 'python-paramiko' 'python-fasteners' 'python-future')
+makedepends=('python-setuptools-scm')
+optdepends=('lftp: backend for ftp, ftps, fish'
+            'ncftp: alternative backend for ftp'
+            'python-boto: Amazon S3 and Google Cloud Storage backend'
+            'python-dropbox: Dropbox backend'
+            'python-gobject: GIO backend'
+            'gvfs: GIO backend'
+            'python-pydrive2: Google Drive backend'
+            'python-requests-oauthlib: OneDrive backend'
+            'rsync: rsync backend')
+source=("$pkgname-$pkgver.tar.gz::https://gitlab.com/duplicity/duplicity/-/archive/rel.$pkgver/duplicity-rel.$pkgver.tar.gz")
+sha512sums=('a09a356ec491465fac248313e6b4cce96d38d7ff3d10e1cb2bf13dd67f39ca49ace84836d53deb85e5e66ab3ed61dde4e812fed40c2c45aa94116bb6b7e561d7')
+b2sums=('f0a5035b4819e9d598118bf2c9f25b198efbd96c950e0a29950c5e9bdb9953b402a536f701c08166b6aff0cbd09d2ea5376ba597b9114efb2abc5607bceec319')
+
+prepare() {
+  cd "$pkgname-rel.$pkgver"
+
+  # FS#76307 - fix version string
+  sed -e "s/\$version/$pkgver/" -i "$pkgname/__init__.py"
+}
+
+package() {
+  cd "$pkgname-rel.$pkgver"
+
+  python setup.py install --root="$pkgdir" --optimize=1
+
+  # move documentation to the correct directory
+  cd "$pkgdir/usr/share/doc"
+  mv "$pkgname-$pkgver" "$pkgname"
+}

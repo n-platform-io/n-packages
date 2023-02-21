@@ -1,0 +1,62 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+# Contributor: Link Dupont <link@subpop.net>
+
+pkgbase=devhelp
+pkgname=(devhelp devhelp-docs)
+pkgver=43.0
+pkgrel=1
+pkgdesc="API documentation browser for GNOME"
+url="https://wiki.gnome.org/Apps/Devhelp"
+arch=(x86_64)
+license=(GPL)
+depends=(webkit2gtk-4.1)
+makedepends=(git appstream-glib gobject-introspection meson yelp-tools
+             gi-docgen)
+_commit=f4e68f3f0134becbdd737eaac85caaa0a8e43a66  # tags/43.0^0
+source=("git+https://gitlab.gnome.org/GNOME/devhelp.git#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd devhelp
+  git describe --tags | sed 's/\.alpha/alpha/;s/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd devhelp
+}
+
+build() {
+  local meson_options=(
+    -D gtk_doc=true
+    -D plugin_emacs=true
+    -D plugin_gedit=true
+    -D plugin_vim=true
+  )
+
+  arch-meson devhelp build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package_devhelp() {
+  groups=(gnome-extra)
+
+  meson install -C build --destdir "$pkgdir"
+
+  # Split -docs
+  mkdir -p docs/usr/share
+  mv -t docs/usr/share "$pkgdir"/usr/share/doc
+}
+
+package_devhelp-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv -t "$pkgdir" docs/*
+}
+
+# vim:set sw=2 sts=-1 et:

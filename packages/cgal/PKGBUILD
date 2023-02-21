@@ -1,0 +1,27 @@
+# Maintainer: Kyle Keen <keenerd@gmail.com>
+# Maintainer: Bruno Pagani <archange@archlinux.org>
+# Contributor: Dmitriy Morozov <foxcub>
+
+pkgname=cgal
+pkgver=5.5.1
+pkgrel=1
+pkgdesc="Computational Geometry Algorithms Library"
+arch=(any)
+url="https://www.cgal.org"
+license=(GPL LGPL)
+depends=(boost eigen gmp mpfr)
+makedepends=(cmake)
+source=(https://github.com/CGAL/cgal/releases/download/v${pkgver}/CGAL-${pkgver}.tar.xz)
+# https://github.com/CGAL/cgal/releases/download/v${pkgver}/sha256sum.txt
+sha256sums=('091630def028facdcaf00eb5b68ad79eddac1b855cca6e87eef18a031566edfc')
+
+build() {
+  cmake -B build -S CGAL-${pkgver} \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make -C build
+}
+
+package() {
+  make -C build DESTDIR="${pkgdir}" install
+  rm -r "${pkgdir}"/usr/share
+}

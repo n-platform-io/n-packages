@@ -1,0 +1,44 @@
+# Contributor: Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Contributor: simo <simo@archlinux.org>
+# Contributor: Mateusz Herych <heniekk@gmail.com>
+# Contributor: Tom Newsom <Jeepster@gmx.co.uk>
+
+pkgname=oidentd
+pkgver=3.0.0
+pkgrel=1
+pkgdesc='An RFC1413 compliant ident daemon'
+arch=('x86_64')
+url="https://oidentd.janikrabe.com/"
+license=('GPL')
+depends=('glibc' 'libnetfilter_conntrack')
+backup=(etc/oidentd.conf)
+source=(https://files.janikrabe.com/pub/oidentd/releases/$pkgver/oidentd-$pkgver.tar.xz{,.asc}
+        service socket sysusers.conf)
+
+sha256sums=('ffd41b748e5a451d42d2eb3d29c0557a9eb4aaa435fca016e43a75ffedc67761'
+            'SKIP'
+            'b88ebda0c1b8153c7eae6804decd25038f594aad381eba8e49759c199a1e68f2'
+            '473d84b4f71208088e2f5beae510fdc8df59d7d183ec9c8812a4703050e671b9'
+            '35eeb18c2febea96c52e924b62b3857f3d0ceff1820e725acc78e3ff8655c435')
+
+validpgpkeys=('63694DD76ED116B84D286F75C4CD3CE186D1CA13') # Janik Rabe
+
+build() {
+	cd oidentd-$pkgver
+	./configure \
+		--sysconfdir=/etc \
+		--prefix=/usr \
+		--sbindir=/usr/bin \
+		--mandir=/usr/share/man
+	make
+}
+
+package() {
+	cd oidentd-$pkgver
+	make DESTDIR="$pkgdir" install
+
+	install -D -m644 "$srcdir"/service "$pkgdir"/usr/lib/systemd/system/oidentd@.service
+	install -D -m644 "$srcdir"/socket "$pkgdir"/usr/lib/systemd/system/oidentd.socket
+	install -D -m644 "$srcdir"/sysusers.conf "$pkgdir"/usr/lib/sysusers.d/oidentd.conf
+}
+

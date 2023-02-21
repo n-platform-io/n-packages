@@ -1,0 +1,49 @@
+# Maintainer: Christian Rebischke <chris.rebischke@archlinux.org>
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: Konrad Tegtmeier <konrad.tegtmeier+aur@gmail.com>
+
+_pkgname=cli
+pkgname=hcloud
+pkgver=1.31.1
+pkgrel=1
+pkgdesc="CLI for Hetzner Cloud"
+arch=('x86_64')
+url="https://github.com/hetznercloud/cli"
+license=('MIT')
+optdepends=('bash-completion: tab auto-completion'
+            'zsh: tab auto-completion')
+makedepends=('go-pie')
+depends=('glibc')
+provides=('hcloud')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/hetznercloud/cli/archive/refs/tags/v${pkgver}.tar.gz")
+sha512sums=('b8747fae1dc4d2e2aa02984ef55415428f9d8bfb95f01242253a77063034b6f91d94f17f8d979379896b6190079efab15af2ed31ecc968f4f7991a71c23703ea')
+
+build() {
+  export CGO_ENABLED=1
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+  cd "cli-${pkgver}"
+  go build \
+    -ldflags "-linkmode=external -w -X github.com/hetznercloud/cli/internal/version.Version=${pkgver}" \
+    github.com/hetznercloud/cli/cmd/hcloud
+  chmod +x ./hcloud
+}
+
+check() {
+  cd "cli-${pkgver}"
+  # go test -v -x ./...
+}
+
+package() {
+  cd "cli-${pkgver}"
+  install -Dsm755 ./hcloud "${pkgdir}/usr/bin/hcloud"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+  mkdir -p "$pkgdir"/usr/share/{bash-completion/completions,zsh/site-functions,fish/vendor_completions.d}
+  ./hcloud completion bash > "${pkgdir}/usr/share/bash-completion/completions/hcloud"
+  ./hcloud completion zsh > "${pkgdir}/usr/share/zsh/site-functions/_hcloud"
+  ./hcloud completion fish > "${pkgdir}/usr/share/fish/vendor_completions.d/hcloud.fish"
+}
