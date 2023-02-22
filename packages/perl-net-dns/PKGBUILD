@@ -1,0 +1,33 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=perl-net-dns
+pkgver=1.36
+pkgrel=1
+pkgdesc="Perl Module: Interface to the DNS resolver"
+arch=('any')
+license=('PerlArtistic')
+url="https://search.cpan.org/dist/Net-DNS/"
+depends=('perl-digest-hmac' 'perl-net-ip')
+checkdepends=('perl-test-pod' 'perl-mime-base32' 'perl-net-dns-sec' 'perl-net-libidn2')
+optdepends=('perl-io-socket-inet6: IPv6 support'
+            'perl-socket6: IPv6 support'
+            'perl-net-libidn2: non-ASCII domain support')
+options=('!emptydirs')
+source=("https://cpan.metacpan.org/authors/id/N/NL/NLNETLABS/Net-DNS-$pkgver.tar.gz")
+sha512sums=('3c7227fa101af46d1d38bc003468f0b6ab65015472629f9e30b482c0204aa52aea6d0e7fe58a11a81fd09b8a811b157919f128396885e97ffbed6f825de0b193')
+
+build() {
+  cd Net-DNS-$pkgver
+  perl Makefile.PL INSTALLDIRS=vendor
+  make
+}
+
+check() {
+  cd Net-DNS-$pkgver
+  make test
+}
+
+package() {
+  cd Net-DNS-$pkgver
+  make DESTDIR="$pkgdir" install
+}

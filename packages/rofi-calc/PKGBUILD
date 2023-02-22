@@ -1,0 +1,36 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+pkgname=rofi-calc
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="Do calculations in rofi"
+arch=('x86_64')
+url="https://github.com/svenstaro/rofi-calc"
+license=(MIT)
+depends=('rofi' 'libqalculate')
+install=$pkgname.install
+source=($pkgname-$pkgver.tar.gz::https://github.com/svenstaro/rofi-calc/archive/v${pkgver}.tar.gz)
+sha512sums=('538fc0e8a041c306a73ddb381c57a250e69fe1804fead8b8f78ece84ad32e71535356de7ada34844c2de53a69e9f972a3390f832e3de4ed1e29ececd34047faf')
+
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  autoreconf -i
+  mkdir build
+}
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver/build"
+
+  ../configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver/build"
+
+  make DESTDIR="$pkgdir/" install
+
+  install -Dm644 ../LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}
+
+# vim:set ts=2 sw=2 et:

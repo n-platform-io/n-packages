@@ -1,0 +1,32 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: juergen <juergen@archlinux.org>
+# Contributor: Manolis Tzanidakis, Petter Gundersen
+
+pkgname=scummvm
+pkgver=2.6.1
+pkgrel=1
+pkgdesc="A 'virtual machine' for several classic graphical point-and-click adventure games."
+arch=('x86_64')
+license=('GPL')
+url="http://www.scummvm.org/"
+depends=('libpng' 'libtheora' 'sdl2' 'sdl2_net' 'fluidsynth' 'flac' 'faad2' 'libvorbis' 'libmad' 'freetype2'
+         'libgl' 'glu' 'libjpeg-turbo' 'libmpeg2' 'curl' 'a52dec' 'giflib' 'glew' 'libspeechd' 'gtk3' 'sndio')
+makedepends=('mesa')
+source=("https://downloads.scummvm.org/frs/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz")
+sha512sums=('984e35683ec4fa6a0715a20027d471ff432a2da060caf1b28557e42ae7b2b5c3b32c3ef4f3c1fb0ac9bcde69d01f789b3054fe9b0ddb0fe9fadbee462c1afcc5')
+b2sums=('b54001a53b3c899831745c94b1bf6020b462dfd49f6de35a609a6977846e7d036ee6c323c888c88379f4b6149dad31a1af5a38ae8d5231303dbba6a0ba97bb2f')
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure \
+    --enable-release \
+    --enable-all-engines \
+    --prefix=/usr
+  make
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -vDm644 dists/${pkgname}.desktop -t "${pkgdir}"/usr/share/applications/
+}

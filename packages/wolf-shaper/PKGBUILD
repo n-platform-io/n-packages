@@ -1,0 +1,109 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgbase=wolf-shaper
+pkgname=(wolf-shaper{,-{clap,dssi,lv2,standalone,vst,vst3}})
+pkgver=1.0.0
+pkgrel=2
+pkgdesc="A waveshaper plugin with a graph editor"
+arch=(x86_64)
+url="https://github.com/pdesaulniers/wolf-shaper"
+license=(GPL3)
+_common_depends=(gcc-libs glibc libx11 libxext)
+makedepends=(alsa-lib dssi gcc-libs gendesk glibc jack libglvnd libx11 libxext lv2)
+source=($pkgbase-$pkgver.tar.gz::$url/releases/download/v$pkgver/$pkgbase-v$pkgver-source.tar.gz)
+sha512sums=('a14b129738888f820d3ba6eca0005cbbfaeda56d651fcac9ec7697570956801e1d032ee69135178bcac645fbf056a4f1ef4c02fdf0d970538764d6e7dd32a59a')
+b2sums=('80c0699922fd5c08c50561e35892120bb2272fb73c9ee38b4c0864d27349d7cb4c76846f80cebdfc86b807333c1877407572d5849c4b98c1a3c3aa5e69951719')
+
+prepare() {
+  gendesk -n \
+          --pkgname com.github.pdesaulniers.$pkgbase \
+          --name $pkgbase \
+          --exec $pkgbase \
+          --pkgdesc "$pkgdesc" \
+          --genericname "Wave Shaper" \
+          --categories "AudioVideo;Audio"
+}
+
+build() {
+  BUILD_CLAP=true BUILD_DSSI=true BUILD_JACK=true BUILD_LV2=true BUILD_VST2=true BUILD_VST3=true make -C $pkgbase
+}
+
+package_wolf-shaper() {
+  depends=(wolf-shaper-{clap,dssi,lv2,standalone,vst,vst3})
+}
+
+package_wolf-shaper-clap() {
+  depends+=(
+    "${_common_depends[@]}"
+    clap-host
+    libglvnd libGL.so
+  )
+  pkgdesc+=" - CLAP plugin"
+  groups=(clap-plugins)
+
+  install -vDm 755 $pkgbase/bin/$pkgbase.clap -t "$pkgdir/usr/lib/clap/"
+}
+
+package_wolf-shaper-dssi() {
+  depends+=(
+    "${_common_depends[@]}"
+    dssi-host
+    libglvnd libGL.so
+    liblo liblo.so
+  )
+  pkgdesc+=" - DSSI plugin"
+  groups=(dssi-plugins pro-audio)
+
+  install -vDm 755 $pkgbase/bin/$pkgbase-dssi.so -t "$pkgdir/usr/lib/dssi/"
+  install -vDm 755 $pkgbase/bin/$pkgbase-dssi/* -t "$pkgdir/usr/lib/dssi/$pkgbase-dssi/"
+}
+
+package_wolf-shaper-lv2() {
+  depends+=(
+    "${_common_depends[@]}"
+    libglvnd libGL.so
+    lv2-host
+  )
+  pkgdesc+=" - LV2 plugin"
+  groups=(lv2-plugins pro-audio)
+
+  install -vDm 755 $pkgbase/bin/$pkgbase.lv2/*.so -t "$pkgdir/usr/lib/lv2/$pkgbase.lv2/"
+  install -vDm 644 $pkgbase/bin/$pkgbase.lv2/*.ttl -t "$pkgdir/usr/lib/lv2/$pkgbase.lv2/"
+}
+
+package_wolf-shaper-standalone() {
+  depends+=(
+    "${_common_depends[@]}"
+    alsa-lib libasound.so
+    libglvnd libGL.so
+  )
+  pkgdesc+=" - standalone"
+
+  install -vDm 755 $pkgbase/bin/$pkgbase -t "$pkgdir/usr/bin/"
+  install -vDm 644 *.desktop -t "$pkgdir/usr/share/applications/"
+}
+
+package_wolf-shaper-vst() {
+  depends+=(
+    "${_common_depends[@]}"
+    libglvnd libGL.so
+    vst-host
+  )
+  pkgdesc+=" - VST2 plugin"
+  groups=(pro-audio vst-plugins)
+
+  install -vDm 755 $pkgbase/bin/$pkgbase-vst.so -t "$pkgdir/usr/lib/vst/"
+}
+
+package_wolf-shaper-vst3() {
+  depends+=(
+    "${_common_depends[@]}"
+    libglvnd libGL.so
+    vst3-host
+  )
+  pkgdesc+=" - VST3 plugin"
+  groups=(pro-audio vst3-plugins)
+
+  install -vDm 755 $pkgbase/bin/$pkgbase.vst3/Contents/$CARCH-linux/*.so -t "$pkgdir/usr/lib/vst3/$pkgbase.vst3/Contents/$CARCH-linux/"
+}
+

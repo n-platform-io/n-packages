@@ -1,0 +1,30 @@
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+# Controbutor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=xorg-xcmsdb
+pkgver=1.0.6
+pkgrel=1
+pkgdesc="Device Color Characterization utility for X Color Management System"
+arch=(x86_64)
+url="https://xorg.freedesktop.org/"
+license=('custom')
+depends=('libx11')
+makedepends=('xorg-util-macros')
+groups=('xorg-apps' 'xorg')
+source=(https://xorg.freedesktop.org/archive/individual/app/xcmsdb-${pkgver}.tar.xz{,.sig})
+sha512sums=('e47d9498ce496effbc44a66e70af91d9fe65c344a17916fd4990a4c84fa8879aa09b6695aeb6ef595f475c16a13c7c31d4c48449234564de7de38d7436764fae'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
+
+build() {
+  cd xcmsdb-${pkgver}
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd xcmsdb-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+}

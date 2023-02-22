@@ -1,0 +1,24 @@
+# Maintainer: Morten Linderud <foxboron@archlinux.org>
+# Contributor: Eric Bélanger <eric@archlinux.org>
+
+pkgname=python-nbxmpp
+pkgdesc="A Python library to use Jabber/XMPP networks in a non-blocking way"
+pkgver=4.0.1
+pkgrel=1
+arch=(any)
+url="https://dev.gajim.org/gajim/python-nbxmpp/"
+license=(GPL3)
+depends=(libsoup3 python-gobject python-idna python-precis_i18n)
+makedepends=(python-setuptools)
+source=("https://dev.gajim.org/gajim/python-nbxmpp/-/archive/$pkgver/python-nbxmpp-$pkgver.tar.gz")
+sha256sums=('45d935adc05076afead09073a2e78364397f425a40b22be4da097f988f29c0b8')
+
+build() {
+  cd $pkgname-$pkgver
+  python setup.py build
+}
+
+package() {
+  cd $pkgname-$pkgver
+  python setup.py install --root="$pkgdir"
+}

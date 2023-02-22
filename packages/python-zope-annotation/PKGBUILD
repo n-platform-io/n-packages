@@ -1,0 +1,29 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=python-zope-annotation
+pkgver=4.8
+pkgrel=1
+pkgdesc="Object annotation mechanism"
+arch=('any')
+url="https://github.com/zopefoundation/zope.annotation"
+license=('ZPL')
+depends=('python-setuptools' 'python-zope-interface' 'python-zope-component'
+         'python-zope-location' 'python-zope-proxy')
+checkdepends=('python-zope-configuration' 'python-zope-testing' 'python-zope-testrunner')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/zopefoundation/zope.annotation/archive/$pkgver.tar.gz")
+sha512sums=('9d1d8b7471aa1ed1918fb22f0d139c6a2128892ab1ccc831c6cc20f05fb36d05fc79e937f6c06ee356ee19268886737d7fc098ea74d4d867d46bf00f5a605fed')
+
+build() {
+  cd zope.annotation-$pkgver
+  python setup.py build
+}
+
+check() {
+  cd zope.annotation-$pkgver
+  PYTHONPATH="$PWD/build/lib:$PYTHONPATH" python -m zope.testrunner --test-path=src
+}
+
+package() {
+  cd zope.annotation-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+}

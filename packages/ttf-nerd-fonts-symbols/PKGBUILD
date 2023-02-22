@@ -1,0 +1,81 @@
+# Maintainer: Daniel M. Capella <polyzen@archlinux.org>
+# Contributor: Asger Hautop Drewsen <asgerdrewsen@gmail.com>
+
+pkgname=('ttf-nerd-fonts-symbols-1000-em' 'ttf-nerd-fonts-symbols-1000-em-mono'
+         'ttf-nerd-fonts-symbols-2048-em' 'ttf-nerd-fonts-symbols-2048-em-mono'
+         'ttf-nerd-fonts-symbols-common')
+pkgbase=ttf-nerd-fonts-symbols
+pkgver=2.3.3
+pkgrel=1
+pkgdesc="High number of extra glyphs from popular 'iconic fonts'"
+arch=('any')
+url=https://github.com/ryanoasis/nerd-fonts
+license=('MIT')
+install=$pkgbase.install
+source=("Symbols-1000-em_Nerd_Font_Complete-$pkgver.ttf::https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v$pkgver/patched-fonts/NerdFontsSymbolsOnly/complete/Symbols-1000-em%20Nerd%20Font%20Complete.ttf"
+        "Symbols-1000-em_Nerd_Font_Complete_Mono-$pkgver.ttf::https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v$pkgver/patched-fonts/NerdFontsSymbolsOnly/complete/Symbols-1000-em%20Nerd%20Font%20Complete%20Mono.ttf"
+        "Symbols-2048-em_Nerd_Font_Complete-$pkgver.ttf::https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v$pkgver/patched-fonts/NerdFontsSymbolsOnly/complete/Symbols-2048-em%20Nerd%20Font%20Complete.ttf"
+        "Symbols-2048-em_Nerd_Font_Complete_Mono-$pkgver.ttf::https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v$pkgver/patched-fonts/NerdFontsSymbolsOnly/complete/Symbols-2048-em%20Nerd%20Font%20Complete%20Mono.ttf"
+        "10-nerd-font-symbols-$pkgver.conf::https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v$pkgver/10-nerd-font-symbols.conf"
+        "Nerd_Fonts-$pkgver-LICENSE::https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v$pkgver/LICENSE")
+b2sums=('98ddc5fc3d988427b70f684e3859f3403fdc3b7296be8ef775bdaaac4fbef166f02b9ee3a50a6a5377132aed2f5e101a70708be70493f6d9f20c61a2e3b5c684'
+        '10e635c1a132ed05c0806a62c3724f4f32dd46518d508b8d19509d08e3cc84f8fcd14d1b760670accf87ecd614a95702e9a76a67e096c2c2b56a3e501dbfdce7'
+        'c46c0557852ba0c78067cb2a2aa83cc3c2d5677276b8c2fbaafde389aa1c42b1b507191ab2d87b739cdcd9e01100cd9b1f60a90e7311326306676f8ff210b100'
+        'f1c5722f5a116a64b1d90c3772548e5fdc8e53756bf7bcf48121d9062f4ecb7d05417c98a061b1eb3f4904854fab3d97f684ce50d0b831af792de22deb40f985'
+        '1bedabc843678a299d5de3a7ddf40252eac8c0640430f09b0d71330173dd092b99122d9816af382228cf1bd9e9d2d7d9a8cade393e01273d772b041963959a19'
+        'cf89e6d30dfd223c0b67941c1641d3290f0ff9bdb49b618a5938079c885ff74e61c555119fc5e0d9111bd37dbb21401f9cd6dc8a29bf3d6f97fc3a4827b6c1e3')
+
+_package() {
+  groups=('nerd-fonts')
+  depends=('ttf-nerd-fonts-symbols-common')
+  provides=('nerd-fonts' 'ttf-font-nerd')
+
+  install -d "$pkgdir"/usr/share/licenses/"$1"
+  ln -s /usr/share/licenses/ttf-nerd-fonts-symbols-common/LICENSE \
+    "$pkgdir"/usr/share/licenses/"$1"/LICENSE
+
+  case "$1" in
+    ttf-nerd-fonts-symbols-1000-em)
+      pkgdesc+=' (1000-em)'
+      conflicts=('ttf-nerd-fonts-symbols-mono' 'ttf-nerd-fonts-symbols-2048-em')
+      replaces=('ttf-nerd-fonts-symbols-mono')
+
+      install -Dm644 "Symbols-1000-em_Nerd_Font_Complete-$pkgver.ttf" \
+        "$pkgdir/usr/share/fonts/TTF/Symbols-1000-em Nerd Font Complete.ttf"
+    ;;
+    ttf-nerd-fonts-symbols-1000-em-mono)
+      pkgdesc+=' (1000-em monospace)'
+      conflicts=('ttf-nerd-fonts-symbols-2048-em-mono')
+
+      install -Dm644 "Symbols-1000-em_Nerd_Font_Complete_Mono-$pkgver.ttf" \
+        "$pkgdir/usr/share/fonts/TTF/Symbols-1000-em Nerd Font Complete Mono.ttf"
+    ;;
+    ttf-nerd-fonts-symbols-2048-em)
+      pkgdesc+=' (2048-em)'
+      conflicts=('ttf-nerd-fonts-symbols' 'ttf-nerd-fonts-symbols-1000-em')
+      replaces=('ttf-nerd-fonts-symbols')
+
+      install -Dm644 "Symbols-2048-em_Nerd_Font_Complete-$pkgver.ttf" \
+        "$pkgdir/usr/share/fonts/TTF/Symbols-2048-em Nerd Font Complete.ttf"
+    ;;
+    ttf-nerd-fonts-symbols-2048-em-mono)
+      pkgdesc+=' (2048-em monospace)'
+      conflicts=('ttf-nerd-fonts-symbols-1000-em-mono')
+
+      install -Dm644 "Symbols-2048-em_Nerd_Font_Complete_Mono-$pkgver.ttf" \
+        "$pkgdir/usr/share/fonts/TTF/Symbols-2048-em Nerd Font Complete Mono.ttf"
+    ;;
+  esac
+}
+
+package_ttf-nerd-fonts-symbols-common() {
+  pkgdesc+=' (common files)'
+  install -Dm644 10-nerd-font-symbols-$pkgver.conf \
+    "$pkgdir"/usr/share/fontconfig/conf.avail/10-nerd-font-symbols.conf
+  install -Dm644 Nerd_Fonts-$pkgver-LICENSE \
+    "$pkgdir"/usr/share/licenses/ttf-nerd-fonts-symbols-common/LICENSE
+}
+
+for _pkgname in "${pkgname[@]/*-common}"; do
+  eval "package_$_pkgname() { _package $_pkgname; }"
+done

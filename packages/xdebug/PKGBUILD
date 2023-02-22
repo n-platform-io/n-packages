@@ -1,0 +1,31 @@
+# Maintainer: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Maintainer: Jonathan Wiersma <arch aur at jonw dot org>
+# Contributor: Jonathan Wiersma <arch aur at jonw dot org>
+# Contributor: sracker <smb.sac@gmail.com>
+
+pkgname=xdebug
+pkgver=3.2.0
+pkgrel=1
+pkgdesc="PHP debugging extension"
+arch=('x86_64')
+url="https://www.xdebug.org"
+license=('GPL')
+depends=('php')
+backup=('etc/php/conf.d/xdebug.ini')
+source=("https://xdebug.org/files/$pkgname-${pkgver}.tgz"
+	      'xdebug.ini')
+sha256sums=('7769b20eecdadf5fbe9f582512c10b394fb575b6f7a8c3a3a82db6883e0032b7'
+            '2c57dbc93f355bf819a14703097231e4ba92c175f273709911fc87fcfa3317f9')
+
+build() {
+  cd "$srcdir"/$pkgname-${pkgver}
+  phpize
+  ./configure --prefix=/usr --enable-xdebug
+  make
+}
+
+package() {
+  cd "$srcdir"/$pkgname-${pkgver}
+  make INSTALL_ROOT="$pkgdir" install
+  install -D -m 644 "$srcdir"/xdebug.ini "$pkgdir"/etc/php/conf.d/xdebug.ini
+}

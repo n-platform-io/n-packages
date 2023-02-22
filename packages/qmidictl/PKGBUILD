@@ -1,0 +1,33 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgname=qmidictl
+pkgver=0.9.8
+pkgrel=1
+pkgdesc="MIDI remote control application sending MIDI data over network using UDP/IP multicast"
+arch=(x86_64)
+url="https://qmidictl.sourceforge.io/"
+license=(GPL2)
+groups=(pro-audio)
+depends=(gcc-libs glibc hicolor-icon-theme qt6-base qt6-svg)
+makedepends=(cmake qt6-tools)
+optdepends=(
+  'qt6-wayland: for native wayland support'
+)
+source=(https://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+sha512sums=('62efe193946f324c59aa1725cbab018f017f7fd04ce3767f6d0190ecfbba342dc8e70cda7a1c2f08c73d94e825b7836c0c139fafcc4e0880313171f09d303955')
+b2sums=('0a572fe8d8c07c27492d321906b2f54d184e55b0d125cc4404c09cc494d95bb31147e302fd8c2e41e6a377f1929db594fd70699211a52e1ba8dee2fc3cf16a96')
+
+build() {
+  cmake -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=None \
+        -DCONFIG_QT6=ON \
+        -Wno-dev \
+        -B build \
+        -S $pkgname-$pkgver
+  make VERBOSE=1 -C build
+}
+
+package() {
+  make VERBOSE=1 DESTDIR="$pkgdir" install -C build
+  install -vDm 644 $pkgname-$pkgver/{ChangeLog,README} -t "$pkgdir/usr/share/doc/$pkgname/"
+}

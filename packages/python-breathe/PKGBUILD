@@ -1,0 +1,35 @@
+# Maintainer : Daniel Bermond <dbermond@archlinux.org>
+# Maintainer : Santiago Torres-Arias <santiago@archlinux.org>
+# Contributor: Simon Boulay <simon.boulay@alkeona.net>
+
+pkgname=python-breathe
+pkgver=4.34.0
+pkgrel=1
+pkgdesc="An extension to reStructuredText and Sphinx to be able to read and render Doxygen xml output"
+arch=('any')
+url="https://breathe.readthedocs.org/en/latest/"
+license=('BSD')
+depends=('python' 'python-sphinx' 'python-docutils')
+makedepends=('python-setuptools')
+checkdepends=('python-pytest')
+source=("https://github.com/michaeljones/breathe/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+        "${pkgname}-${pkgver}.tar.gz.sig"::"https://github.com/michaeljones/breathe/releases/download/v${pkgver}/breathe-${pkgver}.tar.gz.sig")
+sha512sums=('7f3134575f1b8c4d7c96ebc735e33f656b5c6046de3fa2aee95d5e895fb33f0a83fb4b1c64dd69b9deca20b785868b42d6b1d5e39741500ff5f9d82bf3f130b4'
+            'SKIP')
+validpgpkeys=('8AED58021FEACDD5F27BA0E6A72F627716EA9D96') # Melvin Vermeeren <vermeeren@vermwa.re>
+
+build() {
+  cd "breathe-${pkgver}"
+  python setup.py build
+}
+
+check() {
+  cd "breathe-${pkgver}"
+  PYTHONPATH="$PWD" make test
+}
+
+package_python-breathe() {
+  cd "breathe-${pkgver}"
+  python setup.py install --root="${pkgdir}" --skip-build --optimize=1
+  install -D -m644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}

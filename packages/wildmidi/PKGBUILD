@@ -1,0 +1,26 @@
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+# Contributor: Jaroslav Lichtblau <dragonlord@aur.archlinux.org>
+# Contributor: Panagiotis Papadopoulos
+
+pkgname=wildmidi
+pkgver=0.4.5
+pkgrel=1
+pkgdesc='Open Source MIDI Synthesizer'
+arch=('x86_64')
+url="https://www.mindwerks.net/projects/wildmidi/"
+license=('LGPL3')
+depends=('alsa-lib')
+makedepends=('cmake')
+source=(https://github.com/psi29a/wildmidi/archive/wildmidi-${pkgver}.tar.gz)
+sha256sums=('116c0f31d349eaa74a630ed5a9a17b6a351204877a4ed9fb9aacd9dbd7f6c874')
+
+build() {
+  cmake -B build -S $pkgname-$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
+}
+
+package() {
+  DESTDIR="${pkgdir}" cmake --install build
+  ln -s wildmidi.pc "$pkgdir/usr/lib/pkgconfig/WildMIDI.pc"
+}

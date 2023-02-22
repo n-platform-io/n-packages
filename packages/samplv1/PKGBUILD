@@ -1,0 +1,47 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+# Contributor: speps <speps at aur dot archlinux dot org>
+
+pkgname=samplv1
+pkgver=0.9.29
+pkgrel=1
+pkgdesc="Polyphonic sampler synthesizer with stereo fx"
+arch=(x86_64)
+url="https://samplv1.sourceforge.io/"
+license=(GPL2)
+groups=(lv2-plugins pro-audio)
+depends=(gcc-libs glibc hicolor-icon-theme lv2-host qt6-base qt6-svg)
+makedepends=(alsa-lib cmake jack liblo libsndfile lv2 qt6-tools)
+optdepends=(
+  'alsa-lib: for standalone application'
+  'jack: for standalone application'
+  'liblo: for standalone application'
+  'new-session-manager: for session management using the standalone application'
+  'qt6-wayland: for native wayland support'
+)
+source=(https://download.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+sha512sums=('f89a2873c85dad491457cc5f6f1e36bfb1a188d2a0e514d491ff75865b96a62600dc23072923186231e838b2c6e25b431cc257a8915f053d8e3cb82501ba282a')
+b2sums=('13c6d921f2437dd026e439911acf6bdf9a464ffecd61575b07f7e8dc0495ad1ebd204b679c5f4003a8b540003f5dbb3b878a58a58e74e88ac122d0eab781130b')
+
+build() {
+  local cmake_options=(
+    -B build
+    -DCMAKE_BUILD_TYPE=None
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCONFIG_QT6=ON
+    -S $pkgname-$pkgver
+    -Wno-dev
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build --verbose
+}
+
+package() {
+  depends+=(
+    libsndfile libsndfile.so
+  )
+
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644  $pkgname-$pkgver/{ChangeLog,README} -t "$pkgdir/usr/share/doc/$pkgname/"
+}
+# vim:set ts=2 sw=2 et:

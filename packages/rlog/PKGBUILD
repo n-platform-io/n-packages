@@ -1,0 +1,30 @@
+# Contributor: Jaroslaw Swierczynski <swiergot@aur.archlinux.org>
+# Contributor: Sven Kauber <celeon@gmail.com>
+# Maintainer: Daniel J Griffiths <ghost1227@archlinux.us>
+
+pkgname=rlog
+pkgver=1.4
+pkgrel=9
+pkgdesc="A flexible message logging facility for C++ programs and libraries"
+arch=('x86_64')
+url="https://www.arg0.net/rlog"
+license=('LGPL')
+depends=('gcc-libs')
+source=(https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/${pkgname}/${pkgname}-${pkgver}.tar.gz{,.asc}
+        ${pkgname}-section.patch)
+sha256sums=('a938eeedeb4d56f1343dc5561bc09ae70b24e8f70d07a6f8d4b6eed32e783f79'
+            'SKIP'
+            'c80d42c87faeed2d6310255c4a0c426fb1d188b51e85a14f7208d28c93f54e44')
+validpgpkeys=('C08708603F2AA745ECA0D3665A9DB4032EAF4D80') # Valient Gough <vgough@pobox.com>
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	patch -Np1 -i "${srcdir}/${pkgname}-section.patch"
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}/" install
+}

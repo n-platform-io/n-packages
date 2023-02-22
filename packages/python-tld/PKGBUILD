@@ -1,0 +1,26 @@
+# Maintainer: kpcyrd <kpcyrd[at]archlinux[dot]org>
+
+_pyname=tld
+pkgname=python-${_pyname}
+pkgver=0.12.7
+pkgrel=1
+pkgdesc="Extracts the top level domain (TLD) from the URL given"
+arch=(any)
+url="https://github.com/barseghyanartur/tld"
+license=('MPL' 'GPL' 'LGPL')
+depends=('python')
+makedepends=('python-setuptools')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/barseghyanartur/tld/archive/${pkgver}.tar.gz")
+b2sums=('ccd39014b3facdbb836aa33b0daddc819be2ad246985f8bbcd0f13ef01d026c7c9aaeb1cb41312602cf7babe6ec8273c9456a5afb83850f77cd90ad3f9a9b7f9')
+
+build() {
+  cd "${_pyname}-${pkgver}"
+  python setup.py build
+}
+
+package() {
+  cd "${_pyname}-${pkgver}"
+  python setup.py install -O1 --root="$pkgdir" --skip-build
+}
+
+# vim: ts=2 sw=2 et:

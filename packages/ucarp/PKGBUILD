@@ -1,0 +1,65 @@
+# Maintainer: Sébastien Luttringer
+
+pkgname=ucarp
+pkgver=1.5.2
+pkgrel=8
+pkgdesc='Userspace implementation of the CARP protocol'
+arch=('x86_64')
+url='https://www.pureftpd.org/project/ucarp'
+license=('GPL2')
+depends=('libpcap')
+optdepends=('iproute2')
+source=("https://download.pureftpd.org/pub/$pkgname/$pkgname-$pkgver.tar.gz"{,.sig}
+        "$pkgname.service"
+        "$pkgname.8"
+        '01-fix-getopt.patch'
+        '02-fix-downscript-on-error.patch')
+validpgpkeys=('54A2B8892CC3D6A597B92B6C210627AABA709FE1') # Frank Denis
+sha256sums=('f3cc77e28481fd04f62bb3d4bc03104a97dd316c80c0ed04ad7be24b544112f3'
+            'SKIP'
+            'd2a23244843e69ab5086ce74843fbe5617eae8405a4e09a904223735370c53c4'
+            'c26325bfcf517a35e7c2cc11ee87b88e587035a172229532315cb194bef560eb'
+            '6f36263ee665d36ea60a23808b15dccea411f0dcd8cd4be2d22d65eb20a287c9'
+            '09188616b0be6799165789fbbc6c74b84eb9f097f1449c0f5715caf1f951b03e')
+
+prepare() {
+  cd $pkgname-$pkgver
+  # apply patch from the source array (should be a pacman feature)
+  local filename
+  for filename in "${source[@]}"; do
+    if [[ "$filename" =~ \.patch$ ]]; then
+      echo "Applying patch ${filename##*/}"
+      patch -p1 -N -i "$srcdir/${filename##*/}"
+    fi
+  done
+  :
+}
+
+build() {
+  cd $pkgname-$pkgver
+  CFLAGS+=' -fcommon' # https://wiki.gentoo.org/wiki/Gcc_10_porting_notes/fno_common
+  ./configure --prefix=/usr --sbindir=/usr/bin
+  make
+
+}
+
+package() {
+  pushd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  # install examples files
+  install -D -m 644 examples/linux/vip-down.sh \
+    "$pkgdir/usr/share/doc/$pkgname/examples/vip-down.sh"
+  install -D -m 644 examples/linux/vip-up.sh \
+    "$pkgdir/usr/share/doc/$pkgname/examples/vip-up.sh"
+  # install README
+  install -D -m 644 README "$pkgdir/usr/share/doc/$pkgname/README"
+  popd
+  # add manpage
+  install -D -m 644 $pkgname.8 "$pkgdir/usr/share/man/man8/$pkgname.8"
+  # systemd
+  install -D -m 644 $pkgname.service \
+    "$pkgdir/usr/lib/systemd/system/$pkgname.service"
+
+}
+
+# vim:set ts=2 sw=2 et:

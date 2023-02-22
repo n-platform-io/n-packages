@@ -1,0 +1,37 @@
+# Maintainer:  Orhun Parmaksız <orhun@archlinux.org>
+
+pkgname=tickrs
+epoch=2
+pkgver=0.14.6
+pkgrel=1
+pkgdesc="Realtime ticker data in your terminal"
+arch=('x86_64')
+url="https://github.com/tarkah/tickrs"
+license=('MIT')
+depends=('gcc-libs' 'zlib')
+makedepends=('cargo')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha512sums=('fce82d268404e61255da93fbd497498ee225de74feeb5275afd532d1ff67b187445177e9fe601c7907ac3f0596ff9e36c93a2045a087e6c7b974f44fb72b0971')
+options=('!lto')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  cargo build --release --frozen
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  cargo test --frozen
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm 755 "target/release/$pkgname" -t "$pkgdir/usr/bin"
+  install -Dm 644 README.md -t "$pkgdir/usr/share/doc/$pkgname"
+  install -Dm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname"
+}

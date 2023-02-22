@@ -1,0 +1,78 @@
+# Maintainer: Sébastien "Seblu" Luttringer <seblu@archlinux.org>
+# Contributor: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: Dale Blount <dale@archlinux.org>
+
+pkgname=ulogd
+pkgver=2.0.8
+pkgrel=1
+pkgdesc='Userspace Packet Logging for netfilter'
+arch=('x86_64')
+url='https://www.netfilter.org/projects/ulogd/'
+license=('GPL2')
+depends=('libmnl'
+         'libnetfilter_acct'
+         'libnetfilter_conntrack'
+         'libnetfilter_log'
+         'libnfnetlink')
+backup=('etc/ulogd.conf')
+makedepends=('mariadb-libs'
+             'libpcap'
+             'libdbi'
+             'postgresql-libs'
+             'sqlite'
+             'jansson')
+optdepends=('mariadb-libs: MySQL databases support'
+            'sqlite: SQLite3 databases support'
+            'postgresql-libs: PostgreSQL databases support'
+            'libdbi: DBI abstraction databases support'
+            'libpcap: PCAP output support'
+            'jansson: JSON output support')
+validpgpkeys=('37D964ACC04981C75500FB9BD55D978A8A1420E4') # Netfilter Core Team
+source=("https://www.netfilter.org/projects/ulogd/files/$pkgname-$pkgver.tar.bz2"{,.sig}
+        "$pkgname.logrotate"
+        "$pkgname.conf"
+        "$pkgname.service")
+sha256sums=('4ead6c3970c3f57fa1e89fe2d7cc483ba6fe2bd1b08701521e0b3afd667df291'
+            'SKIP'
+            'de7626ea6355691cb89e7f119097ba62c7519546f2c5f1b6c1afc56efd4429ae'
+            '72c4f7b468a5ed39038074c757fe5d34a3e364192536b0a3659ae7fdb4789d2c'
+            'de607fcaf2c36dcaf46856b2d29cf794203a59cad322c62e1d493312cc49b984')
+
+prepare() {
+  cd $pkgname-$pkgver
+  # apply patch from the source array (should be a pacman feature)
+  local filename
+  for filename in "${source[@]}"; do
+    if [[ "$filename" =~ \.patch$ ]]; then
+      msg2 "Applying patch ${filename##*/}"
+      patch -p1 -N -i "$srcdir/${filename##*/}"
+    fi
+  done
+  :
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --sysconfdir=/etc \
+    --with-mysql \
+    --with-pgsql \
+    --with-dbi
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -dm755 "$pkgdir/usr/share/doc/ulogd"
+  install -Dm644 ulogd.conf "$pkgdir/usr/share/doc/ulogd/ulogd.conf"
+  install -m644 doc/*.{table,sql} "$pkgdir/usr/share/doc/ulogd"
+  cd "$srcdir"
+  install -Dm644 $pkgname.service "$pkgdir/usr/lib/systemd/system/$pkgname.service"
+  install -Dm644 $pkgname.logrotate "$pkgdir/etc/logrotate.d/$pkgname"
+  install -Dm644 $pkgname.conf "$pkgdir/etc/$pkgname.conf"
+}
+
+# vim:set ts=2 sw=2 et:

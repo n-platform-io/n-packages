@@ -1,0 +1,32 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=python-vistir
+pkgver=0.7.5
+pkgrel=1
+pkgdesc="Miscellaneous utilities for dealing with filesystems, paths, projects, subprocesses, and more"
+url="https://github.com/sarugaku/vistir"
+license=('BSD')
+arch=('any')
+depends=('python-colorama')
+makedepends=('python-setuptools' 'python-wheel')
+checkdepends=('python-pytest' 'python-hypothesis-fspaths' 'python-pytest-timeout' 'python-requests'
+              'python-yaspin')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/sarugaku/vistir/archive/v$pkgver.tar.gz")
+sha512sums=('8b54a21ff9aa443a89f751ef2f4b881e37bfa0f5bf1add10bda5ab8d56e7358d412794ba33125d4acf8be156077905880d4c28a49261eb3954ded5628ad7997e')
+
+build() {
+  cd vistir-$pkgver
+  python setup.py build
+}
+
+check() {
+  cd vistir-$pkgver
+  PYTHONPATH="$PWD/build/lib" pytest
+}
+
+package() {
+  cd vistir-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

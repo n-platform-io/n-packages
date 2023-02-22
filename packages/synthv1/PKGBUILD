@@ -1,0 +1,43 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+# Contributor: speps <speps at aur dot archlinux dot org>
+
+pkgname=synthv1
+pkgver=0.9.29
+pkgrel=1
+pkgdesc="Old-school all-digital 4-oscillator subtractive polyphonic synthesizer with stereo fx"
+arch=(x86_64)
+url="https://synthv1.sourceforge.io/synthv1-index.html"
+license=(GPL2)
+groups=(lv2-plugins pro-audio)
+depends=(gcc-libs glibc hicolor-icon-theme lv2-host qt6-base qt6-svg)
+makedepends=(alsa-lib cmake jack liblo lv2 qt6-tools)
+optdepends=(
+  'alsa-lib: for standalone application'
+  'jack: for standalone application'
+  'liblo: for standalone application'
+  'new-session-manager: for session management using the standalone application'
+  'qt6-wayland: for native wayland support'
+)
+source=(https://download.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+sha512sums=('c6bad19a254517861228eaa8c13106c7c37af59d6b4749dace61bdd4928e1fb00a6ae89e2fab39feb1ff4f763e9693905d4020766ea45af2321f5e49fe3f2c20')
+b2sums=('cc33da6327190c3ca1c7dbb371c53e877eb383874a2311d9a0ed9fb0024617a015b4cdb14471bbb36081306641e4ca58001a914b0585dcda07168cf0acb82dc3')
+
+build() {
+  local cmake_options=(
+    -B build
+    -DCMAKE_BUILD_TYPE=None
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCONFIG_QT6=ON
+    -S $pkgname-$pkgver
+    -Wno-dev
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build --verbose
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $pkgname-$pkgver/{ChangeLog,README} -t "$pkgdir/usr/share/doc/$pkgname/"
+}
+# vim:set ts=2 sw=2 et:

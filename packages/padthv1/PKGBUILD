@@ -1,0 +1,46 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgname=padthv1
+pkgver=0.9.29
+pkgrel=1
+pkgdesc="An old-school polyphonic additive synthesizer"
+arch=(x86_64)
+url="https://padthv1.sourceforge.io/"
+license=(GPL2)
+groups=(lv2-plugins pro-audio)
+depends=(gcc-libs glibc hicolor-icon-theme lv2-host qt6-base qt6-svg)
+makedepends=(alsa-lib cmake fftw jack liblo lv2 qt6-tools)
+optdepends=(
+  'alsa-lib: for standalone application'
+  'jack: for standalone application'
+  'liblo: for standalone application'
+  'new-session-manager: for session management using the standalone application'
+  'qt6-wayland: for native wayland support'
+)
+source=(https://download.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+sha512sums=('a6af7237f9e1291ba5eb9ac21af141e1f0986d0b1df3b6eb4bfa03391159dce477f2a4eb8b7513904714cd97cfa813b6993f871a4f5676fe314b28db0d2d178c')
+b2sums=('276ccea3529c34c7fdc41da9d0fa10753886323e6a5e07f40a090be5fd38f9b1a7a87df460d811794521174262b6d85ff6bea1978e26d736bc84e0452b4f23a3')
+
+build() {
+  local cmake_options=(
+    -B build
+    -DCMAKE_BUILD_TYPE=None
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCONFIG_QT6=ON
+    -S $pkgname-$pkgver
+    -Wno-dev
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build --verbose
+}
+
+package() {
+  depends+=(
+    fftw libfftw3.so
+  )
+
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $pkgname-$pkgver/{ChangeLog,README} -t "$pkgdir/usr/share/doc/$pkgname/"
+}
+# vim:set ts=2 sw=2 et:

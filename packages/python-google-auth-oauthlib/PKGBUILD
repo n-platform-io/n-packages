@@ -1,0 +1,27 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: Guillaume Horel <guillaume.horel@gmail.com>
+
+pkgname=python-google-auth-oauthlib
+_pkgname='google-auth-oauthlib'
+pkgver=0.7.1
+pkgrel=2
+pkgdesc="oauthlib integration for Google auth."
+url="http://google-auth-oauthlib.readthedocs.io/en/latest/"
+checkdepends=('python-click' 'python-pytest')
+depends=('python' 'python-google-auth' 'python-requests-oauthlib')
+optdepends=('python-click')
+license=('Apache')
+arch=('any')
+source=("https://pypi.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz")
+sha256sums=('9940f543f77d1447432a93781d7c931fb53e418023351ad4bf9e92837a1154ec')
+
+# check() {
+#     cd "${srcdir}/${_pkgname}-${pkgver}"
+#     pytest
+# }
+
+package() {
+    cd "${srcdir}/${_pkgname}-${pkgver}"
+    python setup.py install --root="${pkgdir}" --optimize=1
+    install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

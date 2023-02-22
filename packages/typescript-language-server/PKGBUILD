@@ -1,0 +1,45 @@
+# Maintainer: Daniel M. Capella <polyzen@archlinux.org>
+
+pkgname=typescript-language-server
+pkgver=3.3.0
+pkgrel=1
+pkgdesc='Language Server Protocol (LSP) implementation for TypeScript using tsserver'
+url=https://github.com/theia-ide/typescript-language-server
+arch=('any')
+license=('Apache')
+depends=('typescript')
+makedepends=('jq' 'yarn')
+checkdepends=('npm')
+source=("$url/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+b2sums=('bf113fcd86f5ba53ee7be1a63c16debc3430a3ef0c05e4f96bd127b4dcc00e9ad275b6c2c68f001198a89e413e7954e33be0ea4758fa1dc4d5e9a9a4ca02822b')
+
+prepare() {
+  cd $pkgname-$pkgver
+  yarn --frozen-lockfile
+}
+
+build() {
+  cd $pkgname-$pkgver
+  yarn compile # Needs bin links
+}
+
+check() {
+  cd $pkgname-$pkgver
+  yarn test
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  # Emulate `npm prune --production`
+  cp package.json{,.bak}
+  read -ra devDependencies < <(jq -r '.devDependencies | keys | join(" ")' package.json)
+  yarn remove --frozen-lockfile "${devDependencies[@]}"
+  mv package.json{.bak,}
+
+  install -d "$pkgdir"/usr/{bin,lib/node_modules/$pkgname}
+  ln -s ../lib/node_modules/$pkgname/lib/cli.mjs "$pkgdir"/usr/bin/$pkgname
+  cp -r lib package.json "$pkgdir"/usr/lib/node_modules/$pkgname
+  chmod +x "$pkgdir"/usr/lib/node_modules/$pkgname/lib/cli.mjs
+  install -Dm644 -t "$pkgdir"/usr/share/doc/$pkgname {CHANGELOG,README}.md
+}

@@ -1,0 +1,36 @@
+# Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
+
+_pyname=claripy
+pkgname=python-${_pyname}
+pkgver=9.2.27
+pkgrel=1
+pkgdesc='Abstraction layer for constraint solvers'
+url='https://github.com/angr/claripy'
+license=('custom:BSD2')
+arch=('any')
+depends=('python' 'python-z3-solver' 'python-cachetools' 'python-decorator'
+         'python-pysmt' 'python-six')
+makedepends=('python-build' 'python-installer' 'python-wheel' 'python-setuptools')
+checkdepends=('python-pytest')
+source=("${url}/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('286e319bb90bb70552e8cc581b05258525f3a19264eddb4f11cb915f1625e2049d0a72078f0545f0eb66dfbe0ddabddda3bbf2260fafb03cd1b12905e2cbfcaa')
+b2sums=('95f51259dc951541d7b7017ca755d841076c7beda68dfbae2a3c51815c0e58aa98e38d28f49f2bff4a2f2ce7889d9305cdb81d36329ca74a05ed3025538fc6f1')
+
+build() {
+  cd ${_pyname}-${pkgver}
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd ${_pyname}-${pkgver}
+  PYTHONPATH=build/lib pytest
+}
+
+package() {
+  cd ${_pyname}-${pkgver}
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+}
+
+# vim: ts=2 sw=2 et:

@@ -1,0 +1,47 @@
+# Maintainer: Caleb Maclennan <caleb@alerque.com>
+# Maintainer: Daniel M. Capella <polyzen@archlinux.org>
+# Contributor: Angel Velasquez <angvp@archlinux.org>
+# Contributor: Felix Yan <felixonmars@archlinux.org>
+
+_pyname=astroid
+pkgname=python-$_pyname
+pkgver=2.14.2
+pkgrel=1
+pkgdesc='A common base representation of python source code'
+arch=(any)
+url="https://github.com/PyCQA/$_pyname"
+license=(LGPL)
+_pydeps=(lazy-object-proxy
+         typing-extensions
+         wrapt)
+depends=(python
+         "${_pydeps[@]/#/python-}")
+makedepends=(python-{build,installer,wheel}
+             python-setuptools)
+checkdepends=(python-numpy python-pytest python-regex python-typed-ast
+              python-urllib3)
+replaces=(python-logilab-astng)
+conflicts=(python-logilab-astng)
+_archive="$_pyname-$pkgver"
+source=("$url/archive/v$pkgver/$_archive.tar.gz")
+sha256sums=('f0c84b29ef02e271a65d535b7c7a9942b951ffacdcdb266e837c96fd7239f555')
+
+prepare() {
+	cd "$_archive"
+	sed -i -e '/^requires =/s/~=[0-9.]\+//g' pyproject.toml
+}
+
+build() {
+	cd "$_archive"
+	python -m build -wn
+}
+
+check() {
+	cd "$_archive"
+	pytest
+}
+
+package() {
+	cd "$_archive"
+	python -m installer -d "$pkgdir" dist/*.whl
+}

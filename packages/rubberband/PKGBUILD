@@ -1,0 +1,48 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+# Contributor: Ray Rashif <schiv@archlinux.org>
+# Contributor: Felipe Machado aka arch_audio <machado.felipe@gmail.com>
+
+pkgname=rubberband
+pkgver=3.1.2
+pkgrel=1
+pkgdesc="Time-stretching and pitch-shifting audio library and utility"
+arch=(x86_64)
+url="https://www.breakfastquay.com/rubberband/"
+license=(GPL2)
+depends=(gcc-libs glibc)
+makedepends=(boost fftw java-environment ladspa lv2 meson libsamplerate
+libsndfile vamp-plugin-sdk)
+optdepends=(
+  'ladspa-host: for LADSPA plugin'
+  'lv2-host: for LV2 plugin'
+  'vamp-host: for VAMP plugin'
+  'vamp-plugin-sdk: for VAMP plugin'
+)
+provides=(librubberband.so librubberband-jni.so)
+source=($pkgname-$pkgver.tar.gz::https://github.com/breakfastquay/$pkgname/archive/v$pkgver.tar.gz)
+sha512sums=('c769415a0c25d76e2b789b28f3a8bd2a647efaadef75775932851fa3a78933546e08ce7097bfcdfe14a84021aca2764ddfc622c5d1829fa2f90edfc2a12021cb')
+b2sums=('4e819b4f2b012b04039f96496a00868b40683e60eb19ef6a5cc3cf9fac9607dbb96eeed3640499d68fc2928df7ae037f13a5dac5adbebdfe72e415a246453fe7')
+
+build() {
+  local java_major=$(java --version 2>/dev/null |grep 'openjdk'| cut -d ' ' -f2| cut -d '.' -f1)
+  local meson_options=(
+    -Dfft=fftw
+    -Dresampler=libsamplerate
+    -Dextra_include_dirs="/usr/lib/jvm/java-$java_major-openjdk/include,/usr/lib/jvm/java-$java_major-openjdk/include/linux"
+  )
+  export JAVA_HOME="/usr/lib/jvm/java-$java_major-openjdk"
+
+  arch-meson build $pkgname-$pkgver "${meson_options[@]}"
+  ninja -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+  depends+=(libfftw3.so libsamplerate.so libsndfile.so)
+
+  DESTDIR="$pkgdir" meson install -C build
+  install -vDm 644 $pkgname-$pkgver/{CHANGELOG,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
+}

@@ -1,0 +1,40 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgname=wails
+pkgver=2.3.1
+pkgrel=1
+pkgdesc="Create desktop apps using Go and Web Technologies"
+arch=(x86_64)
+url="https://github.com/wailsapp/wails"
+license=(MIT)
+depends=(glibc)
+makedepends=(go webkit2gtk gtk3)
+source=($pkgname-$pkgver.tar.gz::https://github.com/wailsapp/$pkgname/archive/refs/tags/v$pkgver.tar.gz)
+sha512sums=('fdb555546d8de4653919a0132515ca60702f306ae5139be3a610ca8bd47efd28eebda0ac095b4cb2be28f4339de1e2a7a32d79263096929db7a0003af5f5e5de')
+b2sums=('494375071e1ca4a61ba3334b9f6d52d07e0c7b1388b9d37dda348898556ea672964f2b0007dbb501d27d59b33189b773de6bac8d8fed4b8f3fd7dd1829e1d39b')
+
+prepare() {
+  mkdir -vp $pkgname-$pkgver/build
+}
+
+build() {
+  cd $pkgname-$pkgver/v2
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
+
+  go build -o build/ ./cmd/wails
+}
+
+check() {
+  cd $pkgname-$pkgver
+  go test
+}
+
+package() {
+  install -vDm 755 $pkgname-$pkgver/v2/build/$pkgname -t "$pkgdir/usr/bin/"
+  install -vDm 644 $pkgname-$pkgver/{CHANGELOG,CONTRIBUTORS,README}.md -t "$pkgdir/usr/share/doc/$pkgname/"
+  install -vDm 644 $pkgname-$pkgver/LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

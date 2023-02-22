@@ -1,0 +1,54 @@
+# Maintainer: Andreas 'Segaja' Schleifer <segaja at archlinux dot org>
+
+pkgname='vcspull'
+pkgver=1.19.0
+pkgrel=1
+pkgdesc='Synchronize projects via yaml/json manifest. Built using `libvcs`'
+arch=('any')
+url='https://vcspull.git-pull.com/'
+license=('MIT')
+depends=('python' 'python-colorama' 'python-libvcs' 'python-shtab' 'python-typing_extensions' 'python-yaml')
+makedepends=('python-build' 'python-installer' 'python-poetry-core')
+checkdepends=('git' 'python-pytest' 'python-pytest-rerunfailures')
+optdepends=(
+  'bash-completion: for command line completion in bash'
+)
+source=("https://github.com/vcs-python/vcspull/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('3d37aac1f40c8da8fd13d5a8e1df65bf15b952538cae5e38c4ad7d4d98bd5dbd73e41096cfd5c3c5b250805fc98b2c1251e822b7430c18cf52499b4ed6ad0e8e')
+b2sums=('d90bcd2d853f33a57c1bd82b40a4c6ebb75a7c3ac5e255fbc3caa58b570896883901d8ba2d2e8e9d199f45788b4eabad32c50d5404a951ca0aab5ce26a6ca812')
+
+build() {
+  cd  "${pkgname}-${pkgver}"
+
+  local _site_packages="$(python -c "import site; print(site.getsitepackages()[0])")"
+
+  python -m build --wheel --skip-dependency-check --no-isolation
+  python -m installer --destdir=tmp_install dist/*.whl
+
+  export PYTHONPATH="tmp_install${_site_packages}:${PYTHONPATH}"
+}
+
+check() {
+  cd  "${pkgname}-${pkgver}"
+
+  pytest -vv tests
+}
+
+package() {
+  cd  "${pkgname}-${pkgver}"
+
+  cp --archive --verbose tmp_install/* "${pkgdir}"
+
+  install --verbose --directory --mode=0755 \
+      "${pkgdir}/usr/share/bash-completion/completions" \
+      "${pkgdir}/usr/share/zsh/site-functions" \
+      "${pkgdir}/etc/profile.d"
+
+  shtab --shell=bash --error-unimportable vcspull.cli.create_parser > "${pkgdir}/usr/share/bash-completion/completions/${pkgname}"
+  shtab --shell=zsh --error-unimportable vcspull.cli.create_parser > "${pkgdir}/usr/share/zsh/site-functions/_${pkgname}"
+  shtab --shell=tcsh --error-unimportable vcspull.cli.create_parser > "${pkgdir}/etc/profile.d/${pkgname}.completion.csh"
+
+  install --verbose -D --mode=0644 LICENSE --target-directory "${pkgdir}/usr/share/licenses/${pkgname}"
+  install --verbose -D --mode=0644 *.md CHANGES MIGRATION --target-directory "${pkgdir}/usr/share/doc/${pkgname}"
+  install --verbose -D --mode=0644 examples/* --target-directory "${pkgdir}/usr/share/doc/${pkgname}/examples"
+}
