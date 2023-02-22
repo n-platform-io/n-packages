@@ -1,0 +1,22 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+
+pkgname=mauiman
+pkgver=1.0.1
+pkgrel=1
+pkgdesc='Maui Manager Library. Server and public library API.'
+url='https://mauikit.org/'
+arch=(x86_64)
+license=(LGPL)
+depends=(qt5-base)
+makedepends=(extra-cmake-modules)
+source=(https://download.kde.org/stable/maui/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz)
+sha256sums=('60400780c5d5478a1e32b3c0515dedfa1fd2f2fb0b150521cd91a9e7275a982b')
+
+build() {
+  cmake -B build -S $pkgname-$pkgver
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

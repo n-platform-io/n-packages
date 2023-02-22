@@ -1,0 +1,23 @@
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=libvisual
+pkgver=0.4.1
+pkgrel=1
+pkgdesc="Abstraction library that comes between applications and audio visualisation plugins"
+arch=('x86_64')
+url="https://sourceforge.net/projects/libvisual/"
+license=('LGPL')
+depends=('glibc' 'sdl12-compat')
+source=("https://downloads.sourceforge.net/sourceforge/libvisual/libvisual-${pkgver}.tar.gz")
+sha256sums=('aa12877417f76d3642d9f4c723302380d833175639d63a55641d01928a5ddb7d')
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

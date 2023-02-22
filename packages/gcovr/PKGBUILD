@@ -1,0 +1,31 @@
+# Maintainer: Jelle van der Waa <jelle@vdwaa.nl>
+
+pkgname=gcovr
+pkgver=5.2
+pkgrel=1
+pkgdesc='provides a utility for managing the use of the GNU gcov utility'
+arch=(any)
+url="https://gcovr.com/"
+license=(BSD)
+depends=('python' 'python-jinja' 'python-lxml' 'gcc')
+makedepends=('python-setuptools')
+checkdepends=('python-pytest')
+source=("https://github.com/gcovr/gcovr/archive/${pkgver}.tar.gz")
+sha256sums=('06910913a5f659b195f85041c90e387545f4d62b90fe3f65342613997b51c752')
+
+build() {
+  cd ${pkgname}-${pkgver}
+  python setup.py build
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  # requires pyutillib, ply
+  #pytest gcovr
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  python setup.py install --root="${pkgdir}"/ --optimize=1 --skip-build
+  install -D -m644 LICENSE.txt "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE.txt
+}

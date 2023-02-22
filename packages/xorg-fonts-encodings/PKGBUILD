@@ -1,0 +1,36 @@
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=xorg-fonts-encodings
+pkgver=1.0.6
+pkgrel=1
+pkgdesc="X.org font encoding files"
+arch=(any)
+url="https://xorg.freedesktop.org/"
+license=('custom')
+makedepends=('xorg-mkfontscale' 'xorg-util-macros' 'xorg-font-util')
+groups=('xorg-fonts' 'xorg')
+options=(!makeflags)
+source=(${url}/releases/individual/font/encodings-${pkgver}.tar.xz{,.sig})
+sha512sums=('2d52486996939401121bc858ba23031f70eef857760db8da4c84f083e981868e4bc7a8c2ab6d59274a0cf95f592a0dbfad47bce6c9299bb45d115b48abc39134'
+            'SKIP')
+#validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # "Matt Turner <mattst88@gmail.com>"
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
+
+build() {
+  cd encodings-${pkgver}
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd encodings-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+
+  # regenerate encodngs file not to include non-compressed versions
+  cd "$pkgdir"/usr/share/fonts/encodings/large
+  mkfontscale -b -s -l -n -r -p /usr/share/fonts/encodings/large -e . .
+  cd "$pkgdir"/usr/share/fonts/encodings/
+  mkfontscale -b -s -l -n -r -p /usr/share/fonts/encodings -e . -e large .
+}

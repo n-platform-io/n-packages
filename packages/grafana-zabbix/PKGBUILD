@@ -1,0 +1,32 @@
+# Maintainer: Florian Pritz <bluewind@xinu.at>
+pkgname=grafana-zabbix
+pkgver=4.2.10
+pkgrel=1
+pkgdesc="Zabbix plugin for Grafana dashboard"
+arch=('any')
+url="https://github.com/alexanderzobnin/grafana-zabbix"
+license=('APACHE')
+depends=('grafana')
+makedepends=(yarn libfaketime go git nodejs-lts-gallium)
+source=("$pkgname-$pkgver-retagged-1.tar.gz::https://github.com/alexanderzobnin/grafana-zabbix/archive/v$pkgver.tar.gz")
+sha256sums=('7b97156b53c4d5d5d55158a8fa57da7fc3a4105cddd55d4744c8aa6f1fd2f71c')
+
+build() {
+	cd "$pkgname-$pkgver"
+	make install
+	make build
+	make dist
+}
+
+check() {
+	cd "$pkgname-$pkgver"
+	# Force UTC timezone so that tests pass, even after a DST change
+	PATH="$PATH:/build/go/bin" TZ=UTC make test lint
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	install -dm755 "$pkgdir/var/lib/grafana/plugins/alexanderzobnin-zabbix-app"
+	cp -r dist/* "$pkgdir/var/lib/grafana/plugins/alexanderzobnin-zabbix-app"
+	rm -rf "$pkgdir/var/lib/grafana/plugins/alexanderzobnin-zabbix-app/node_modules"
+}

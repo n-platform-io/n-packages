@@ -1,0 +1,33 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Daniel Wallace <danielwallace at gtmanfred dot com>
+
+pkgname=python-heatclient
+pkgver=3.1.0
+pkgrel=1
+pkgdesc="OpenStack Orchestration API Client Library"
+arch=('any')
+url="https://docs.openstack.org/python-heatclient/latest/"
+license=('Apache')
+depends=('python-babel' 'python-pbr' 'python-cliff' 'python-iso8601' 'python-osc-lib'
+         'python-prettytable' 'python-oslo-i18n' 'python-oslo-serialization' 'python-oslo-utils'
+         'python-keystoneauth1' 'python-swiftclient' 'python-yaml' 'python-requests' 'python-six')
+checkdepends=('python-stestr' 'python-testscenarios' 'python-requests-mock')
+source=("https://github.com/openstack/python-heatclient/archive/$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('48b6e0e2bfc1532a09dcc01366d68dbcbe51d82a143aa7e79f526257bc476c891c03330aeacea4cc915c8101fb283a39c07dc7edc3cb765588e914b57448efa3')
+
+export PBR_VERSION=$pkgver
+
+build() {
+  cd python-heatclient-$pkgver
+  python setup.py build
+}
+
+check() {
+  cd python-heatclient-$pkgver
+  stestr run
+}
+
+package() {
+  cd python-heatclient-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+}

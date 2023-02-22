@@ -1,0 +1,78 @@
+# Maintainer: Lukas Fleischer <lfleischer@archlinux.org>
+# Contributor: David Runge <dvzrv@archlinux.org>
+# Contributor: Aleksey Filippov <sarum9in@gmail.com>
+# Contributor: Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Contributor: Sven-Hendrik Haase <sh@lutzhaase.com>
+# Contributor: Thomas S Hatch <thatch45@gmail.com>
+# Contributor: Geoffroy Carrier <geoffroy@archlinux.org>
+# Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
+
+pkgbase='protobuf'
+pkgname=('protobuf' 'python-protobuf')
+pkgver=21.12
+pkgrel=1
+pkgdesc="Protocol Buffers - Google's data interchange format"
+arch=('x86_64')
+url='https://developers.google.com/protocol-buffers/'
+license=('BSD')
+depends=('gcc-libs' 'glibc' 'zlib')
+makedepends=('python-setuptools' 'cmake' 'gtest')
+source=(https://github.com/protocolbuffers/protobuf/archive/v$pkgver/$pkgname-$pkgver.tar.gz
+        https://github.com/protocolbuffers/protobuf/commit/101b6199.patch)
+sha512sums=('2dc8f552388438268d8b9f7a9e84c6abf1736be3d5031438c789c317410c9f4b5cedd25bf7da6d67b3ba32ca890869f9ddaab2284d6ac0e734a5b135ffbb1346'
+            'acc38a761cb164caf4c9fcb6181be999ce95899658cefd3253f6104c13265a595bb5e671b9df959ac88d2044f8c21f1e29796e9f7a772291b44d2eaab7723645')
+
+prepare() {
+  patch -d $pkgbase-$pkgver -Rp1 < 101b6199.patch # Revert ABI break
+}
+
+build() {
+  cmake -B build -S $pkgbase-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -Dprotobuf_USE_EXTERNAL_GTEST=ON \
+    -Dprotobuf_BUILD_SHARED_LIBS=ON
+  cmake --build build
+
+  ln -rs build $pkgbase-$pkgver/src/.libs
+  cd $pkgbase-$pkgver/python
+  PROTOC="$srcdir"/build/protoc \
+  python setup.py build --cpp_implementation
+}
+
+check() {
+  cmake --build build --target check
+
+  cd $pkgbase-$pkgver/python
+  python setup.py test
+}
+
+package_protobuf() {
+  replaces=('protobuf-cpp')
+  provides=('libprotoc.so' 'libprotobuf.so' 'libprotobuf-lite.so')
+
+  DESTDIR="$pkgdir" cmake --install build
+
+  cd $pkgbase-$pkgver
+  install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname"
+  install -vDm 644 editors/protobuf-mode.el \
+    -t "$pkgdir/usr/share/emacs/site-lisp/"
+  install -vDm 644 editors/proto.vim \
+    -t "${pkgdir}/usr/share/vim/vimfiles/syntax"
+}
+
+package_python-protobuf() {
+  pkgdesc='Python 3 bindings for Google Protocol Buffers'
+  depends=('python' 'python-six' "protobuf=$pkgver")
+
+  local python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+  cd "$pkgbase-$pkgver"
+  (
+    cd python
+    PYTHONPATH="$PWD/build/lib.linux-$CARCH-${python_version}:PYTHONPATH" \
+    python setup.py install --skip-build \
+                            --cpp_implementation \
+                            --optimize=1 \
+                            --root="$pkgdir"
+  )
+  install -vDm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}

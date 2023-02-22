@@ -1,0 +1,46 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Ionut Biru <ibiru@archlinux.org>
+# Contributor: Roman Kyrylych <roman@archlinux.org>
+
+pkgname=gnome-bluetooth-3.0
+pkgver=42.5
+pkgrel=1
+pkgdesc="GNOME Bluetooth Subsystem"
+url="https://wiki.gnome.org/Projects/GnomeBluetooth"
+arch=(x86_64)
+license=(GPL LGPL)
+depends=(gtk4 libadwaita libnotify bluez gsound systemd pulseaudio-bluetooth
+         upower)
+makedepends=(gobject-introspection gtk-doc docbook-xsl git meson)
+checkdepends=(python-dbusmock)
+provides=(libgnome-bluetooth{,-ui}-3.0.so)
+_commit=8ff1cc5f60b4855c9618d3cef75abf9a0b9c66f8  # master
+source=("git+https://gitlab.gnome.org/GNOME/gnome-bluetooth.git#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd gnome-bluetooth
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd gnome-bluetooth
+
+  # Fixup missing tag
+  git tag -f 42.5 8ff1cc5f60b4855c9618d3cef75abf9a0b9c66f8
+}
+
+build() {
+  arch-meson gnome-bluetooth build -D gtk_doc=true
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

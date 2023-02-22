@@ -1,0 +1,24 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+
+pkgname=maui-clip
+_pkgname=clip
+pkgver=2.2.1
+pkgrel=1
+pkgdesc='Video player and video collection manager'
+url='https://mauikit.org/'
+arch=(x86_64)
+license=(GPL3)
+depends=(mauikit-filebrowsing taglib ffmpeg)
+makedepends=(extra-cmake-modules)
+groups=(maui)
+source=(https://download.kde.org/stable/maui/$_pkgname/$pkgver/$_pkgname-$pkgver.tar.xz)
+sha256sums=('70e9c3a7f35694d9b86c7c08d966c388c89b56fb32049cd34aab37c2f19b8903')
+
+build() {
+  cmake -B build -S $_pkgname-$pkgver
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

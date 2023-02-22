@@ -1,0 +1,34 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=python-keystoneclient
+pkgver=5.0.1
+pkgrel=1
+pkgdesc="Client Library for OpenStack Identity"
+arch=('any')
+url="https://docs.openstack.org/python-keystoneclient/latest/"
+license=('Apache')
+depends=('python-six' 'python-pbr' 'python-iso8601' 'python-prettytable' 'python-debtcollector'
+         'python-keystoneauth1' 'python-oslo-utils' 'python-oslo-i18n'
+         'python-oslo-serialization' 'python-oslo-config' 'python-requests' 'python-stevedore')
+makedepends=('python-setuptools')
+checkdepends=('python-oslotest' 'python-requests-mock' 'python-pycodestyle' 'python-lxml'
+              'python-testresources')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/openstack/python-keystoneclient/archive/$pkgver.tar.gz")
+sha512sums=('da507d9ff1cc1003cba24a4fcb1827b768d8f98d82c14fa971a6f17b5b4e418a2de6d93d3de73d117378a2f968242976e8290f8ab24e67a31d091985cd247909')
+
+export PBR_VERSION=$pkgver
+
+build() {
+  cd python-keystoneclient-$pkgver
+  python setup.py build
+}
+
+check() {
+  cd python-keystoneclient-$pkgver
+  stestr run
+}
+
+package() {
+  cd python-keystoneclient-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+}

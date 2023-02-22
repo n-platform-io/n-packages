@@ -1,0 +1,38 @@
+# Maintainer: Jiachen Yang <farseerfc@gmail.com>
+# Contributor: Evan Gates      <evan.gates@gmail.com>
+#              Dag  Odenhall   <dag.odenhall@gmail.com>
+#              Raphael Nestler
+pkgname=lsw
+pkgver=0.3
+pkgrel=6
+pkgdesc="List window names"
+license=(MIT)
+arch=(x86_64)
+url="https://tools.suckless.org/x/lsw"
+depends=(libx11)
+source=("https://dl.suckless.org/tools/$pkgname-$pkgver.tar.gz"
+        "makefile.patch")
+
+sha256sums=('0b3f3ce16eef060df6e0d90327ee82593dfd75281347908698747cfa3f8d0655'
+            '87720b20d26f37ba1fe5005673fa26bf301e07bb6dc9420278b7dc7f0f288ba4')
+
+prepare() {
+	cd -- "$srcdir/$pkgname-$pkgver"
+	sed -i "s/CFLAGS\s*= /CFLAGS = ${CFLAGS} /" config.mk
+	sed -i "s/LDFLAGS\s*= /LDFLAGS = ${LDFLAGS} /" config.mk
+
+	patch "$srcdir/$pkgname-$pkgver/Makefile" "$srcdir/makefile.patch"
+}
+
+build() {
+	cd -- "$srcdir/$pkgname-$pkgver"
+	make X11INC=/usr/lib/X11 X11LIB=/usr/lib/X11
+}
+
+package(){
+	cd -- "$srcdir/$pkgname-$pkgver"
+	make PREFIX=/usr MANPREFIX=/usr/share/man DESTDIR="$pkgdir" install
+
+	install -m644 -D LICENSE "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}
+

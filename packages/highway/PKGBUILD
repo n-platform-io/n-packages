@@ -1,0 +1,31 @@
+# Maintainer: Daniel Bermond <dbermond@archlinux.org>
+
+pkgname=highway
+pkgver=1.0.3
+pkgrel=1
+pkgdesc='A C++ library for SIMD (Single Instruction, Multiple Data)'
+arch=('x86_64')
+url='https://github.com/google/highway/'
+license=('Apache')
+depends=('gcc-libs')
+makedepends=('cmake' 'gtest')
+source=("https://github.com/google/highway/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('566fc77315878473d9a6bd815f7de78c73734acdcb745c3dde8579560ac5440e')
+
+build() {
+    cmake -B build -S "${pkgname}-${pkgver}" \
+        -DCMAKE_BUILD_TYPE:STRING='None' \
+        -DCMAKE_INSTALL_PREFIX:PATH='/usr' \
+        -DBUILD_SHARED_LIBS:BOOL='ON' \
+        -DHWY_SYSTEM_GTEST:BOOL='ON' \
+        -Wno-dev
+    make -C build
+}
+
+check() {
+    make -C build test
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}

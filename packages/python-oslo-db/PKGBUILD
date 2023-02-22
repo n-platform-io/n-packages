@@ -1,0 +1,36 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Daniel Wallace <danielwallace at gtmanfred dot com>
+
+pkgname=python-oslo-db
+pkgver=12.3.1
+_commit=b689b6320cdb7dbbb366bf35f23083814f5e79ec
+pkgrel=1
+pkgdesc="OpenStack Database Pattern Library"
+arch=('any')
+url="https://pypi.python.org/pypi/oslo.db/$pkgver"
+license=('Apache')
+depends=('python-six' 'python-pbr' 'python-alembic' 'python-debtcollector' 'python-oslo-i18n'
+         'python-oslo-config' 'python-oslo-utils' 'python-sqlalchemy' 'python-sqlalchemy-migrate'
+         'python-stevedore')
+makedepends=('git' 'python-setuptools')
+checkdepends=('python-testresources' 'python-oslotest' 'python-oslo-context')
+options=('!emptydirs')
+source=("git+https://github.com/openstack/oslo.db.git#commit=$_commit")
+sha512sums=('SKIP')
+
+build() {
+  cd oslo.db
+  python setup.py build
+}
+
+check() {
+  cd oslo.db
+  stestr run
+}
+
+package() {
+  cd oslo.db
+  python setup.py install --root="$pkgdir" --optimize=1
+}
+
+# vim:set ts=2 sw=2 et:

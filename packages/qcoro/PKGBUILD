@@ -1,0 +1,39 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+
+pkgbase=qcoro
+pkgname=(qcoro-qt5 qcoro-qt6)
+pkgver=0.8.0
+pkgrel=1
+pkgdesc='C++ Coroutines for Qt'
+arch=(x86_64)
+url='https://github.com/danvratil/qcoro'
+license=(MIT)
+makedepends=(cmake qt5-websockets qt6-websockets qt5-declarative qt6-declarative)
+source=(https://github.com/danvratil/qcoro/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('28f90d817f42352084242f7a1ff090c5cff92359e4dbecea8f04d39ebcf630f8')
+
+build() {
+  cmake -B build5 -S $pkgbase-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DUSE_QT_VERSION=5 \
+    -DBUILD_SHARED_LIBS=ON
+  cmake --build build5
+
+  cmake -B build6 -S $pkgbase-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DUSE_QT_VERSION=6 \
+    -DBUILD_SHARED_LIBS=ON
+  cmake --build build6
+}
+
+package_qcoro-qt5() {
+  depends=(qt5-websockets qt5-declarative)
+  DESTDIR="$pkgdir" cmake --install build5
+  install -Dm644 $pkgbase-$pkgver/LICENSES/MIT.txt -t "$pkgdir"/usr/share/licenses/$pkgname
+}
+
+package_qcoro-qt6() {
+  depends=(qt6-websockets qt6-declarative)
+  DESTDIR="$pkgdir" cmake --install build6
+  install -Dm644 $pkgbase-$pkgver/LICENSES/MIT.txt -t "$pkgdir"/usr/share/licenses/$pkgname
+}

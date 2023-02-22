@@ -1,0 +1,26 @@
+# Maintainer: Jelle van der Waa <jelle@vdwaa.nl>
+# Contributor: Marcin (CTRL) Wieczorek <marcin@marcin.co>
+# Contributor: Marcin Kornat <rarvolt+aur@gmail.com>
+# Contributor: MatejSpindler <spindler.matej@gmail.com>
+
+pkgname=esptool
+pkgver=4.4
+pkgrel=1
+pkgdesc="A cute Python utility to communicate with the ROM bootloader in Espressif ESP8266"
+arch=('any')
+url="https://github.com/espressif/esptool"
+license=('GPL2')
+makedepends=('git' 'python-setuptools')
+depends=('python-pyserial' 'python-ecdsa' 'python-pyaes' 'python-bitstring' 'python-reedsolo' 'python-cryptography')
+source=($pkgname-$pkgver.tar.gz::https://github.com/espressif/esptool/archive/v${pkgver}.tar.gz)
+sha512sums=('97d44a5553be380a2d26469bea42b6995c0d97fa3d50e0f6c1673548801983243d204d140ecfc17ee6c9f9c6580e6c6c42a6e953655a06053fa56064af650cf8')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  python3 setup.py build
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  python3 setup.py install --root="$pkgdir/" --optimize=1 --skip-build
+}

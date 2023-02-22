@@ -1,0 +1,49 @@
+# Maintainer: Filipe Laíns (FFY00) <lains@archlinux.org>
+
+pkgname=ansible-bender
+pkgver=0.10.1
+pkgrel=1
+pkgdesc='Build container images using Ansible playbooks'
+arch=('any')
+url='https://github.com/ansible-community/ansible-bender'
+license=('MIT')
+depends=(
+  'ansible'
+  'python-yaml'
+  'python-tabulate'
+  'python-jsonschema'
+  'python-setuptools'
+  'podman'
+  'buildah'
+)
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-wheel'
+  'python-setuptools-scm'
+)
+source=("$pkgname-$pkgver.tar.gz::$url/archive/$pkgver.tar.gz")
+b2sums=('0ab2287caff3cddb8c09b6ce97b6171117a548704b222e3a2bf383cf91416b77f0636939c23de04298675583d84d6a886a32982d343d9f5600e59630bc8e3866')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+
+  # drop python-setuptools-scm-git-archive as it is included in
+  # python-setuptools-scm >= 7.0.0
+  sed -e '/setuptools_scm_git_archive/d' -i setup.cfg
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  SETUPTOOLS_SCM_PRETEND_VERSION="$pkgver" python -m build --wheel --no-isolation
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  install -vDm644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname"
+}

@@ -1,0 +1,29 @@
+diff --git i/Makefile.am w/Makefile.am
+index 3c6388c9..cd3f9576 100644
+--- i/Makefile.am
++++ w/Makefile.am
+@@ -141,9 +141,7 @@ else
+ CARGO_RELEASE_ARGS=--release
+ endif
+ 
+-if CROSS_COMPILING
+ CARGO_TARGET_ARGS=--target=$(RUST_TARGET)
+-endif
+ 
+ CARGO_VERBOSE = $(cargo_verbose_$(V))
+ cargo_verbose_ = $(cargo_verbose_$(AM_DEFAULT_VERBOSITY))
+diff --git i/configure.ac w/configure.ac
+index de941ee8..0784c21f 100644
+--- i/configure.ac
++++ w/configure.ac
+@@ -286,9 +286,7 @@ AC_ARG_VAR(RUST_TARGET, [Set rust target (default=$host)])
+ : ${RUST_TARGET:=$host}
+ 
+ AM_CONDITIONAL([CROSS_COMPILING], [test "x$cross_compiling" = xyes])
+-AS_IF([test "x$cross_compiling" = "xyes"], [
+-	RUST_TARGET_SUBDIR="$RUST_TARGET/$RUST_TARGET_SUBDIR"
+-])
++RUST_TARGET_SUBDIR="$RUST_TARGET/$RUST_TARGET_SUBDIR"
+ AC_SUBST([RUST_TARGET_SUBDIR])
+ 
+ dnl ===========================================================================

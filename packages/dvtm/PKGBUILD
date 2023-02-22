@@ -1,0 +1,40 @@
+# Maintainer: Lukas Fleischer <lfleischer@archlinux.org>
+# Contributor: Giorgio Lando <patroclo7@gmail.com>
+# Contributor: bender02 at gmx dot com
+
+pkgname=dvtm
+pkgver=0.15
+pkgrel=5
+pkgdesc='Dynamic virtual terminal manager.'
+arch=('x86_64')
+url='https://www.brain-dump.org/projects/dvtm/'
+license=('MIT')
+depends=('ncurses')
+source=("https://www.brain-dump.org/projects/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+        'config.h')
+sha256sums=('8f2015c05e2ad82f12ae4cf12b363d34f527a4bbc8c369667f239e4542e1e510'
+            '89652c67613d8750567b4bdb9088939203fe5602d6d36bb95c95b72908b4a80b')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	cp "${srcdir}/config.h" .
+	sed -i 's/CFLAGS =/CFLAGS +=/' config.mk
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	make clean
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	make PREFIX=/usr DESTDIR="${pkgdir}" install
+	install -Dm0644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+	# this is provided by ncurses now
+	rm -rf "${pkgdir}/usr/share/terminfo/"
+}

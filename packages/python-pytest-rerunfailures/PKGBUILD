@@ -1,0 +1,35 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+_name=pytest-rerunfailures
+pkgname=python-pytest-rerunfailures
+pkgver=11.1.1
+pkgrel=1
+pkgdesc="A plugin for py.test that re-runs failed tests to eliminate intermittent failures"
+arch=(any)
+url="https://github.com/pytest-dev/pytest-rerunfailures/"
+license=(MPL2)
+depends=(python-packaging python-pytest)
+makedepends=(python-build python-installer python-setuptools python-wheel)
+checkdepends=(python-pytest-xdist)
+optdepends=(
+  'python-pytest-xdist: for recovering from crashes'
+)
+source=(https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz)
+sha512sums=('32b498fd1552f934785ac0f668d9c1c5e955dc0ffdb8a187f03d75fb7e1eafc0a322f0e57a6cc932b8ee639166a264b1dd16a34a83d93acae73129ce7e603cff')
+b2sums=('f9906a40e37fe8710cdfcdbf4070cc0196097b63845d971e6bc47d5a80ee204dcaf63510a53de6498366c6b62c537a9ffe55485e146a7d04001141f276cdc126')
+
+build() {
+  cd $_name-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd $_name-$pkgver
+  pytest -vv -k 'not test_rerun_passes_after_temporary_test_crash'
+}
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm 644 {CHANGES.rst,README.rst} -t "$pkgdir/usr/share/doc/$pkgname/"
+}

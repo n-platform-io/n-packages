@@ -1,0 +1,28 @@
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+
+pkgname=xorg-xedit
+pkgver=1.2.3
+pkgrel=1
+pkgdesc="Simple text editor for X"
+arch=('x86_64')
+url="https://xorg.freedesktop.org/"
+license=('custom')
+depends=('libxaw' 'libxmu' 'libxt' 'libx11')
+makedepends=('xorg-util-macros')
+source=(https://xorg.freedesktop.org/archive/individual/app/xedit-${pkgver}.tar.xz{,.sig})
+sha512sums=('1089c35ef961e53f74cc7d892960e1ee7f0da17529e3173e7f7764b0eb4ee94d1e068cb177d8502ca55c1dd6808962d4b1427e303adc7e6db80be8828557f45a'
+            'SKIP')
+#validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # "Matt Turner <mattst88@gmail.com>"
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
+
+build() {
+  cd "xedit-${pkgver}"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "xedit-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

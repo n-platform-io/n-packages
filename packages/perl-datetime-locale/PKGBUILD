@@ -1,0 +1,28 @@
+# Maintainer: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: François Charette <firmicus ατ gmx δοτ net>
+
+pkgname=perl-datetime-locale
+pkgver=1.37
+pkgrel=1
+pkgdesc="Localization support for DateTime.pm "
+arch=(any)
+url="https://search.cpan.org/dist/DateTime-Locale"
+license=('GPL' 'PerlArtistic')
+depends=('perl-params-validate' 'perl-list-moreutils'
+	 'perl-file-sharedir' 'perl-file-sharedir-install')
+options=('!emptydirs')
+source=(https://www.cpan.org/authors/id/D/DR/DROLSKY/DateTime-Locale-$pkgver.tar.gz)
+sha256sums=('f70cc4e450f441767ac1a0b8655b6f1de46c43e8d1c9d05f2e0924a16be0cb6b')
+
+build() {
+  cd  "$srcdir"/DateTime-Locale-$pkgver
+  PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+  make
+}
+
+package() {
+  cd  "$srcdir"/DateTime-Locale-$pkgver
+  make install DESTDIR="$pkgdir"
+  find "$pkgdir" -name '.packlist' -delete
+  find "$pkgdir" -name '*.pod' -delete
+}

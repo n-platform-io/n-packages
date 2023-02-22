@@ -1,0 +1,31 @@
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=libxft
+pkgver=2.3.7
+pkgrel=1
+pkgdesc="FreeType-based font drawing library for X"
+arch=('x86_64')
+license=('custom')
+url="https://xorg.freedesktop.org/"
+depends=('fontconfig' 'libxrender')
+makedepends=('pkgconfig')
+source=(${url}/releases/individual/lib/libXft-${pkgver}.tar.xz{,.sig})
+sha512sums=('9df29d3c7b88a21952df1015604511e5d79856d721b2a61eb2c5a062a9abccf16318132432a7c86c0ef816bf174ae86842fa67dabbaa0b163dfa56d99022de19'
+            'SKIP')
+#validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
+validpgpkeys=('19882D92DDA4C400C22C0D56CC2AF4472167BE03') # Thomas E. Dickey (use for email) <dickey@his.com>
+
+build() {
+  cd libXft-${pkgver}
+  ./configure --prefix=/usr --sysconfdir=/etc --disable-static
+  make
+}
+
+package() {
+  cd libXft-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -d -m755 "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+
+}

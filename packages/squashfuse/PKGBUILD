@@ -1,0 +1,35 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+
+pkgname=squashfuse
+pkgver=0.1.105
+pkgrel=1
+pkgdesc="FUSE filesystem to mount squashfs archives"
+arch=(x86_64)
+url="https://github.com/vasi/squashfuse"
+license=(custom)
+depends=(fuse zstd)
+makedepends=()
+source=(https://github.com/vasi/squashfuse/archive/$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('3f776892ab2044ecca417be348e482fee2839db75e35d165b53737cb8153ab1e')
+
+prepare() {
+  cd $pkgname-$pkgver
+  ./autogen.sh
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  sed -e 's/ -shared / -Wl,-O1,--as-needed\0/g' -i libtool # Fix overlinking
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
+
+# install missing headers
+  install -Dm644 *.h -t "$pkgdir"/usr/include/squashfuse
+}

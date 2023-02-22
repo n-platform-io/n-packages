@@ -1,0 +1,25 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=deepin-app-services
+pkgver=0.0.20
+pkgrel=1
+pkgdesc='Service collection of DDE applications, including dconfig-center'
+arch=('x86_64')
+url="https://github.com/linuxdeepin/dde-app-services"
+license=('GPL3')
+depends=(dtkwidget)
+makedepends=(cmake gtest ninja)
+groups=(deepin)
+source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxdeepin/dde-app-services/archive/$pkgver.tar.gz")
+sha512sums=('8052f162ccbcd5391a71ac1bc25e9180c9c325efe556679144061e1488ce3806e2051ed9dbcad5545a8509e84d2e64ec4a7590c2f99514b8ccdbbeec40ac905a')
+
+build() {
+  cd dde-app-services-$pkgver
+  cmake -GNinja . -DCMAKE_INSTALL_PREFIX=/usr -DDVERSION=$pkgver
+  ninja
+}
+
+package() {
+  cd dde-app-services-$pkgver
+  DESTDIR="$pkgdir" ninja install
+}

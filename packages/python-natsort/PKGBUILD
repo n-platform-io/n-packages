@@ -1,0 +1,41 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+_name=natsort
+pkgname=python-natsort
+pkgver=8.2.0
+pkgrel=2
+pkgdesc="Simple yet flexible natural sorting in Python"
+arch=(any)
+url="https://github.com/SethMMorton/natsort"
+license=(MIT)
+depends=(python python-typing-extensions)
+makedepends=(python-build python-installer python-setuptools python-wheel)
+checkdepends=(python-hypothesis python-pytest-mock)
+optdepends=(
+  'python-fastnumbers: more efficient sorting'
+  'python-pyicu: sort in locale dependant manner'
+)
+source=(https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz)
+sha512sums=('d7e35c48ee36e69812c26b2cd333c57f1ec70c54017c4f51ed06dbb7619afc11cd1d589035faee700e1adf1e6b759b43ee497685fc88518be62c41957e15884e')
+b2sums=('d101ae2fa1cb009892e9712ece87d3825f3fca7970475e46176e5acbc29481ac79d491f1bae0721d85d3e67ecf39e5f54e2a984f0398356f32a5f0ec18a3e98d')
+
+build() {
+  cd $_name-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local _site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+
+  cd $_name-$pkgver
+  python -m installer --destdir=test_dir dist/*.whl
+  export PYTHONPATH="test_dir/$_site_packages:$PYTHONPATH"
+  pytest -vv
+}
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+  install -vDm 644 {CHANGELOG.md,README.rst} -t "$pkgdir/usr/share/doc/$pkgname/"
+}

@@ -1,0 +1,27 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=fcitx5-bamboo
+pkgver=1.0.2
+pkgrel=1
+pkgdesc="Bamboo (Vietnamese Input Method) engine support for Fcitx"
+arch=('x86_64')
+url="https://github.com/fcitx/fcitx5-bamboo"
+license=('GPL')
+depends=('fcitx5')
+makedepends=('extra-cmake-modules' 'go')
+source=("https://download.fcitx-im.org/fcitx5/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
+sha512sums=('6ed0f0e871b4c0f84c2bd7894961d9bfe8950ef5211b341a35b3721e306bf0bfdb7a72839d3281e41b551854995be1c622d52817625d95e06a4771898ff3725f'
+            'SKIP')
+validpgpkeys=('2CC8A0609AD2A479C65B6D5C8E8B898CBF2412F9') # Weng Xuetian <wengxt@gmail.com>
+
+build(){
+  cd $pkgname-$pkgver
+
+  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib .
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

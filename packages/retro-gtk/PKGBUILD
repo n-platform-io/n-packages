@@ -1,0 +1,37 @@
+# Maintainer: Balló György <ballogyor+arch at gmail dot com>
+# Contributor: Tom Richards <tom@tomrichards.net>
+# Contributor: TingPing <tingping@tingping.se>
+# Contributor: Omar Pakker <omar.pakker@oracle.com>
+
+pkgname=retro-gtk
+pkgver=1.0.2
+pkgrel=1
+pkgdesc='Toolkit to write GTK based Libretro frontends'
+arch=('x86_64')
+url='https://wiki.gnome.org/Apps/Games'
+license=('GPL3')
+depends=('libepoxy' 'glib2' 'gtk3' 'libpulse' 'libsamplerate')
+makedepends=('gobject-introspection' 'meson' 'vala')
+provides=('libretro-gtk-1.so')
+source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz")
+sha256sums=('7118b0b5f9c1f2f0bc742faf8689eb48b44833efada0f6dbce990ec9783bcbd2')
+
+build() {
+  arch-meson $pkgname-$pkgver build \
+    -D build-doc=true \
+    -D install-doc=true
+  meson compile -C build
+}
+
+check() {
+  # Tests try to run the installed /usr/lib/retro-runner
+
+  #dbus-run-session xvfb-run \
+  #  -s '-screen 0 1920x1080x24 -nolisten local' \
+  #  meson test -C build --print-errorlogs
+  :
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

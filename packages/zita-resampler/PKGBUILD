@@ -1,0 +1,53 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+# Contributor: speps <speps at aur dot archlinux dot org>
+# Contributor: Philipp Überbacher <murks at lavabit dot com>
+
+pkgbase=zita-resampler
+pkgname=(zita-resampler zita-resampler-docs)
+pkgver=1.10.1
+pkgrel=1
+pkgdesc="A C++ library for resampling audio signals"
+arch=(x86_64)
+url="https://kokkinizita.linuxaudio.org/linuxaudio"
+license=(GPL3)
+makedepends=(gcc-libs glibc libsndfile)
+source=($url/downloads/$pkgname-$pkgver.tar.xz)
+sha512sums=('ba95286b0744df393194f4f94a8aad62f6c088cf80f6be71482ed55beef6503a9bab6644f2565b69002247611fcf0fb6561fc0072578466a0133311721b43cf5')
+b2sums=('b8871899b7e6cac9b46df3c45c5bb1d8e9c9edd41bcbc5944098d9c4eee2ff4e4d216f97b3bfa96ac43082b5333de26201d6cba9eaa152efd20e8c5017478391')
+
+prepare() {
+  cd $pkgname-$pkgver
+  # remove march=native
+  sed -e '/native/d' -i {source,apps}/Makefile
+}
+
+build() {
+  cd $pkgname-$pkgver
+  # libs
+  make -C source
+  # create lib link for building apps
+  ln -sv lib$pkgname.so.$pkgver source/lib$pkgname.so
+  # apps
+  make LDFLAGS+=" -L../source" CXXFLAGS+=" -I../source" -C apps
+  # cleanup link
+  rm -rv source/lib$pkgname.so
+}
+
+package_zita-resampler() {
+  depends=(gcc-libs glibc)
+  optdepends=(
+    'libsndfile: for zresample and zretune'
+    'zita-resampler-docs: for documentation'
+  )
+  provides=(libzita-resampler.so)
+
+  for location in $pkgbase-$pkgver/{source,apps}; do
+    make DESTDIR="$pkgdir/" PREFIX=/usr SUFFIX="" install -C $location
+  done
+}
+
+package_zita-resampler-docs() {
+  pkgdesc+=" - documentation"
+
+  install -vDm 644 $pkgbase-$pkgver/{AUTHORS,README,docs/*}  -t "$pkgdir/usr/share/doc/$pkgbase/"
+}

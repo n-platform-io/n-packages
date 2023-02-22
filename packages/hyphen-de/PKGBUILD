@@ -1,0 +1,49 @@
+# Maintainer: AndyRTR <andyrtr@archlinux.org>
+
+pkgname=hyphen-de
+# https://cgit.freedesktop.org/libreoffice/dictionaries/log/de
+_commit=9e27d044d98e65f89af8c86df722a77be827bdc8 # last commit "de" subdir - 2022-09-23
+pkgver=20220923
+pkgrel=1
+pkgdesc="German hyphenation rules"
+arch=(any)
+url="https://wiki.documentfoundation.org/Development/Dictionaries"
+license=('LGPL')
+makedepends=('git')
+optdepends=('hyphen: offers hyphenation library functions')
+source=("git+https://anongit.freedesktop.org/git/libreoffice/dictionaries.git#commit=$_commit")
+sha256sums=('SKIP')
+
+#build() {
+#  /bin/true
+#}
+
+package() {
+  cd dictionaries/de
+  install -dm755 "${pkgdir}"/usr/share/hyphen
+  cp -p hyph_de_??.* "$pkgdir"/usr/share/hyphen
+
+  pushd "$pkgdir"/usr/share/hyphen/
+  de_DE_aliases="de_BE de_LU"
+  for lang in $de_DE_aliases; do
+        ln -s hyph_de_DE.dic hyph_$lang.dic
+  done
+  de_CH_aliases="de_LI"
+  for lang in $de_CH_aliases; do
+        ln -s hyph_de_CH.dic hyph_$lang.dic
+  done
+
+  popd
+
+  # the symlinks
+  install -dm755 "${pkgdir}"/usr/share/myspell/dicts
+  pushd "$pkgdir"/usr/share/myspell/dicts
+    for file in "$pkgdir"/usr/share/hyphen/*; do
+      ln -sv /usr/share/hyphen/$(basename $file) .
+    done
+  popd
+  
+  # docs
+  install -dm755 "${pkgdir}"/usr/share/doc/$pkgname
+  cp -p README_hyph_de.txt "$pkgdir"/usr/share/doc/$pkgname
+}

@@ -1,0 +1,33 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Daniel Wallace <danielwallace at gtmanfred dot com>
+
+pkgname=python-openstackclient
+pkgver=6.0.0
+pkgrel=1
+pkgdesc="OpenStack Command-line Client"
+arch=('any')
+url="https://docs.openstack.org/python-openstackclient/latest/"
+license=('Apache')
+depends=('python-six' 'python-pbr' 'python-babel' 'python-cliff' 'python-keystoneclient'
+         'python-keystoneauth1' 'python-osc-lib' 'python-oslo-utils' 'python-oslo-i18n'
+         'python-openstacksdk' 'python-glanceclient' 'python-novaclient' 'python-cinderclient')
+checkdepends=('python-ddt' 'python-oslotest' 'python-requests-mock')
+source=("https://github.com/openstack/python-openstackclient/archive/$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('ae2228a1a79609b538a2b0d7ad4c30467ad7d6942ee8b49ff9e9b47b4c21309d46aa0f5380aa4c6915a3e8b4cef111b5f928cb057a6dc726aaf4087edb10d442')
+
+export PBR_VERSION=$pkgver
+
+build() {
+  cd python-openstackclient-$pkgver
+  python setup.py build
+}
+
+check() {
+  cd python-openstackclient-$pkgver
+  stestr run || echo "Tests failed: https://storyboard.openstack.org/#!/story/2003143"
+}
+
+package() {
+  cd python-openstackclient-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+}

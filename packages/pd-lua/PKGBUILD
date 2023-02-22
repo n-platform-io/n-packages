@@ -1,0 +1,23 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgname=pd-lua
+pkgver=0.11.5
+pkgrel=1
+pkgdesc="LUA embedding for pd"
+arch=(x86_64)
+url="https://github.com/agraef/pd-lua"
+license=(GPL2)
+groups=(pd-externals pro-audio)
+depends=(gcc-libs glibc lua pd)
+source=($pkgname-$pkgver.tar.gz::https://github.com/agraef/$pkgname/archive/$pkgver.tar.gz)
+sha512sums=('29376a6026864cc58a7235fad9b79a6ab1b6ac8f02d793149c84ff7853fd03eb5977832e828171ec702a851f68ce21b5d40ef8f9328007f384be7b3f258fa777')
+b2sums=('836ccf037ea75c6ce177ae45770958c5646b045aed277a4c8086ba9e71f7fa3cd8a0085619372d2ade584b003a800b13a8e092de0ca32112188318e0c71ca009')
+
+build() {
+  make LDFLAGS="$LDFLAGS" CFLAGS="$CFLAGS" -C $pkgname-$pkgver
+}
+
+package() {
+  make DESTDIR="$pkgdir/" PDLIBDIR=/usr/lib/pd/extra prefix=/usr install -C $pkgname-$pkgver
+  install -vDm 644 $pkgname-$pkgver/README -t "$pkgdir/usr/share/doc/$pkgname/"
+}

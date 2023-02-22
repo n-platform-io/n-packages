@@ -1,0 +1,39 @@
+# Maintainer: kpcyrd <kpcyrd[at]archlinux[dot]org>
+# Contributor: Magnus Bergmark <magnus.bergmark@gmail.com>
+
+pkgname=rofi-emoji
+pkgver=3.1.0
+pkgrel=2
+pkgdesc='A Rofi plugin for selecting emojis'
+url='https://github.com/Mange/rofi-emoji'
+arch=('x86_64')
+license=('MIT')
+depends=('rofi')
+checkdepends=('check')
+optdepends=(
+  'xsel: X11 support'
+  'xclip: X11 support'
+  'wl-clipboard: Wayland support'
+)
+source=(https://github.com/Mange/${pkgname}/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
+b2sums=('f173f26786c457c3e34048c43e437648d3df5d4d04a147127d7c95827e2f22e78da4e12d896c703a90f32f5528eddf43aea215d1164391f56cfbae6f510a0dce')
+
+build() {
+  cd ${pkgname}-${pkgver}
+  autoreconf -i
+  ./configure --prefix=/usr
+  make
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  make check
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}/" install
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
+
+# vim: ts=2 sw=2 et:

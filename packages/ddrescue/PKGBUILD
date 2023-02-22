@@ -1,0 +1,39 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+# Contributor: Ray Rashif <schiv@archlinux.org>
+# Contributor: Pierre Schmitz <pierre@archlinux.de>
+# Contributor: Paul Mattal <paul@archlinux.org>
+
+pkgname=ddrescue
+pkgver=1.27
+pkgrel=1
+pkgdesc="GNU data recovery tool"
+arch=(x86_64)
+url="https://www.gnu.org/software/ddrescue/ddrescue.html"
+license=(GPL3)
+depends=(gcc-libs glibc)
+source=(https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.lz{,.sig})
+sha512sums=('b9a8b462536c5ec29db69e3a5f70b0bce160d5c58373cb519f6d54aba2fc0c4907e74fbcd11d49291306dc29c76f1992575aef7cfff41f34748bbd96e33b745a'
+            'SKIP')
+b2sums=('a8957819dec2255e446504c822331ae13a86193f4655cbe6d559a498db9daf8c0f8066355e395cfd44f08b2f15d831820003bdfde6fc59c8434a695f95bdbe21'
+        'SKIP')
+validpgpkeys=('1D41C14B272A2219A739FA4F8FE99503132D7742') # Antonio Diaz Diaz
+
+build() {
+  # fake configure script reinvents autotools and requires custom parameters to
+  # set CPPFLAGS, CXXFLAGS and LDFLAGS
+  local configure_options=(
+    --prefix=/usr
+    CPPFLAGS="$CPPFLAGS"
+    CXXFLAGS="$CXXFLAGS"
+    LDFLAGS="$LDFLAGS"
+  )
+
+  cd $pkgname-$pkgver
+  ./configure "${configure_options[@]}"
+  make
+}
+
+package() {
+  make DESTDIR="$pkgdir" install install-man -C "$pkgname-$pkgver"
+  install -vDm 644  $pkgname-$pkgver/{AUTHORS,ChangeLog,NEWS,README} -t "$pkgdir/usr/share/doc/$pkgname"
+}

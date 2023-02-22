@@ -1,0 +1,34 @@
+# Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
+# Contributor: Giovanni Scafora <giovanni@archlinux.org>
+# Contributor: Gilles CHAUVIN <gcnweb@gmail.com>
+
+pkgname=live-media
+pkgver=2022.12.01
+pkgrel=1
+pkgdesc='Set of C++ libraries for multimedia streaming'
+url='http://live555.com/liveMedia'
+arch=('x86_64')
+license=('LGPL')
+depends=('gcc-libs' 'openssl')
+source=(https://download.videolan.org/contrib/live555/live.${pkgver}.tar.gz)
+sha256sums=('057c1d3dc24c26b33e14c4dc3592885adf220403a1e1255e8a101e233c69c108')
+sha512sums=('bb5dc80b5b1621e04fb8a100bd3deff190efb757da10e6cfc652d6eaa878f6a3e063b2f2219d5d83d6fb6892b55be55eafe2dd43f42a559e1f931130b45584b1')
+
+prepare() {
+  cd live
+  find . -name Makefile.head | xargs sed -e 's|/local||g' -i # Fix prefix
+}
+
+build() {
+  cd live
+  sed -E 's|(-DSOCKLEN_T=socklen_t)|\1 -fPIC -DRTSPCLIENT_SYNCHRONOUS_INTERFACE=1|g' -i config.linux-with-shared-libraries
+  ./genMakefiles linux-with-shared-libraries
+  make
+}
+
+package() {
+  cd live
+  make DESTDIR="$pkgdir" install
+}
+
+# vim: ts=2 sw=2 et:

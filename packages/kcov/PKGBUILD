@@ -1,0 +1,32 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: Jan-Erik Rediger <badboy at archlinux dot us>
+
+pkgname=kcov
+pkgver=40
+pkgrel=1
+pkgdesc="Code coverage tester for compiled programs, Python scripts and shell scripts"
+arch=('x86_64')
+url="http://simonkagstrom.github.com/kcov/index.html"
+license=('GPL2')
+depends=('elfutils' 'curl')
+makedepends=('cmake' 'python' 'ninja')
+source=("https://github.com/SimonKagstrom/kcov/archive/v${pkgver}.tar.gz")
+sha512sums=('5abe1dd94fbe93fe73d658840593781216b8562a87d010a94d4520e29dd4d537e167de64b7f535347f894c68d5d8b9974ee4b9fd2cebf9291bac4ddbb9ac7cff')
+
+build() {
+  cd $pkgname-$pkgver
+
+  cmake \
+    -GNinja \
+    -Bbuild \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  ninja -C build
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  DESTDIR="$pkgdir/" ninja -C build install
+}
+
+# vim:set ts=2 sw=2 et:

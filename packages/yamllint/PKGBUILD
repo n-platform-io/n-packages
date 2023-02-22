@@ -1,0 +1,36 @@
+# Maintainer: Daniel M. Capella <polyzen@archlinux.org>
+
+pkgname=yamllint
+pkgver=1.29.0
+pkgrel=1
+pkgdesc='Linter for YAML files'
+arch=('any')
+url=https://github.com/adrienverge/yamllint
+license=('GPL3')
+depends=('python-pathspec' 'python-yaml')
+makedepends=('python-build' 'python-installer' 'python-setuptools'
+             'python-wheel')
+checkdepends=('python-nose')
+source=("https://files.pythonhosted.org/packages/source/${pkgname::1}/$pkgname/$pkgname-$pkgver.tar.gz")
+sha256sums=('66a755d5fbcbb8831f1a9568676329b5bac82c37995bcc9afd048b6459f9fa48')
+b2sums=('ffb19628eb4ae5bf41e8ad1eb1295ed4c6d2c7f08cc819884e1e52552ae37542d5822ce76ef531072a955435a99b512c0c75f32c70e60124c51bde9b76eaff53')
+
+prepare() {
+  cd $pkgname-$pkgver
+  sed -i '/setuptools/d' setup.cfg
+}
+
+build() {
+  cd $pkgname-$pkgver
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd $pkgname-$pkgver
+  python -m unittest discover tests
+}
+
+package() {
+  cd $pkgname-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

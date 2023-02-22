@@ -1,0 +1,52 @@
+# Maintainer: Moritz Bunkus <moritz@bunkus.org>
+
+pkgname='perl-class-method-modifiers'
+pkgver=2.14
+pkgrel=1
+pkgdesc="provides Moose-like method modifiers"
+arch=('any')
+license=('PerlArtistic' 'GPL')
+options=('!emptydirs')
+depends=('perl')
+makedepends=('perl-test-fatal' 'perl-test-requires' 'perl-test-needs')
+url='https://search.cpan.org/dist/Class-Method-Modifiers'
+source=("https://cpan.metacpan.org/authors/id/E/ET/ETHER/Class-Method-Modifiers-${pkgver}.tar.gz")
+sha512sums=('79f4706735f8daf573f55861e8c3eb855d4a948881b037557eb4461e8a9887c17813f2a345b8ae6e77f3746a2d9258fc49b6a8c86dd997e90a05be0ccfa19ab2')
+
+build() {
+  cd "${srcdir}/Class-Method-Modifiers-${pkgver}"
+  export PERL_MM_USE_DEFAULT=1 PERL5LIB="" \
+    PERL_AUTOINSTALL=--skipdeps \
+    PERL_MM_OPT="INSTALLDIRS=vendor DESTDIR='"$pkgdir"'" \
+    PERL_MB_OPT="--installdirs vendor --destdir '"$pkgdir"'" \
+    MODULEBUILDRC=/dev/null
+  perl Makefile.PL
+  make
+}
+
+check() {
+  cd "${srcdir}/Class-Method-Modifiers-${pkgver}"
+  export PERL_MM_USE_DEFAULT=1 PERL5LIB="" \
+    PERL_AUTOINSTALL=--skipdeps \
+    PERL_MM_OPT="INSTALLDIRS=vendor DESTDIR='"$pkgdir"'" \
+    PERL_MB_OPT="--installdirs vendor --destdir '"$pkgdir"'" \
+    MODULEBUILDRC=/dev/null
+  make test
+}
+
+package() {
+  cd "${srcdir}/Class-Method-Modifiers-${pkgver}"
+  export PERL_MM_USE_DEFAULT=1 PERL5LIB="" \
+    PERL_AUTOINSTALL=--skipdeps \
+    PERL_MM_OPT="INSTALLDIRS=vendor DESTDIR='"$pkgdir"'" \
+    PERL_MB_OPT="--installdirs vendor --destdir '"$pkgdir"'" \
+    MODULEBUILDRC=/dev/null
+  make install
+  find "$pkgdir" -name .packlist -o -name perllocal.pod -delete
+}
+
+# Local Variables:
+# mode: shell-script
+# sh-basic-offset: 2
+# End:
+# vim:set ts=2 sw=2 et:

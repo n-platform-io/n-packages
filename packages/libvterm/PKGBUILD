@@ -1,0 +1,27 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: Florian Walch <florian+aur@fwalch.com>
+
+pkgname=libvterm
+pkgver=0.3
+pkgrel=1
+pkgdesc='Abstract library implementation of a VT220/xterm/ECMA-48 terminal emulator'
+arch=('x86_64')
+url='https://www.leonerd.org.uk/code/libvterm/'
+license=('MIT')
+depends=('glibc')
+makedepends=('git')
+source=("https://www.leonerd.org.uk/code/libvterm/libvterm-${pkgver}.tar.gz")
+sha256sums=('61eb0d6628c52bdf02900dfd4468aa86a1a7125228bab8a67328981887483358')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  make PREFIX=/usr
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make PREFIX=/usr DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+# vim:set sw=2 sts=2 et:

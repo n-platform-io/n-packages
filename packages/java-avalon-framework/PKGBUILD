@@ -1,0 +1,19 @@
+# Maintainer: Lukas Fleischer <lfleischer@archlinux.org>
+# Contributor: Stefan Husmann <stefan-husmann@t-online.de>
+# Contributor: Simon Lipp <sloonz+aur@gmail.com>
+
+pkgname=java-avalon-framework
+pkgver=4.2.0
+pkgrel=9
+pkgdesc='Reusable components for J2SE applications.'
+arch=('any')
+url='https://excalibur.apache.org/'
+license=(APACHE)
+depends=('java-runtime')
+source=("https://archive.apache.org/dist/excalibur/avalon-framework/binaries/avalon-framework-$pkgver.tar.gz")
+sha256sums=('bfd0fd5c8071bc37d5175586bebb9e8bf3e9de26e898ac1115f9c01a42cf0096')
+
+package() {
+	install -Dm644 "$srcdir/avalon-framework/jars/avalon-framework-${pkgver}.jar" \
+	  "$pkgdir/usr/share/java/avalon-framework/avalon-framework.jar"
+}

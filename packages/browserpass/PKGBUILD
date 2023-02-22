@@ -1,0 +1,42 @@
+# Maintainer: Maxim Baz <$pkgname dash archlinux at maximbaz dot com>
+# Contributor: emersion <contact emersion.fr>
+
+_name=browserpass-native
+pkgname=browserpass
+pkgver=3.0.10
+pkgrel=2
+pkgdesc="Native host app for Browserpass, browser extension for zx2c4's pass (password manager)"
+arch=('x86_64')
+url="https://github.com/${pkgname}/${_name}"
+license=('ISC')
+depends=('gnupg')
+makedepends=('go' 'git')
+optdepends=('browserpass-chromium: Chromium extension for Browserpass'
+            'browserpass-firefox: Firefox extension for Browserpass')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/releases/download/${pkgver}/${_name}-${pkgver}-src.tar.gz"
+        "${pkgname}-${pkgver}.tar.gz.asc::${url}/releases/download/${pkgver}/${_name}-${pkgver}-src.tar.gz.asc")
+sha256sums=('2da8c3d3d3bb99d272e1ba5d5b13989006d1d38f29b1e0ea461facd11e31998a'
+            'SKIP')
+validpgpkeys=('56C3E775E72B0C8B1C0C1BD0B5DB77409B11B601')
+
+prepare() {
+    cd "${_name}-${pkgver}"
+    make configure
+}
+
+build() {
+    cd "${_name}-${pkgver}"
+    make browserpass
+}
+
+check() {
+    cd "${_name}-${pkgver}"
+    make test
+}
+
+package() {
+    cd "${_name}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}
+
+# vim:set ts=4 sw=4 et:

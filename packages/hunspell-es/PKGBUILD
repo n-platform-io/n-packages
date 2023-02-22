@@ -1,0 +1,172 @@
+# Maintainer: Angel Velasquez <angvp@archlinux.org> 
+# Maintainer: AndyRTR <andyrtr@archlinux.org>
+
+pkgbase=hunspell-es
+pkgname=(hunspell-es_any hyphen-es mythes-es)
+pkgver=2.7
+pkgrel=1
+epoch=1
+arch=(any)
+url="https://github.com/sbosio/rla-es"
+license=(LGPL3)
+makedepends=(qt6-webengine)
+_countries=(
+  'AR "Argentina"'
+  'BO "Bolivia"'
+  'CL "Chile"'
+  'CO "Colombia"'
+  'CR "Costa Rica"'
+  'CU "Cuba"'
+  'DO "Dominican Republic"'
+  'EC "Ecuador"'
+  'ES "Spain"'
+  'GT "Guatemala"'
+  'HN "Honduras"'
+  'MX "Mexico"'
+  'NI "Nicaragua"'
+  'PA "Panama"'
+  'PE "Peru"'
+  'PR "Puerto Rico"'
+  'PY "Paraguay"'
+  'SV "El Salvador"'
+  'UY "Uruguay"'
+  'VE "Venezuela"'
+)
+
+source=(https://github.com/sbosio/rla-es/releases/download/v$pkgver/es.oxt)
+noextract=(es.oxt)
+
+for _co in "${_countries[@]}"; do
+  _code=${_co%% *}
+  noextract+=(es_$_code.oxt)
+  source+=("https://github.com/sbosio/rla-es/releases/download/v$pkgver/es_$_code.oxt")
+  _pkgname=hunspell-es_${_code,,}
+  pkgname+=($_pkgname)
+  eval "package_$_pkgname() {
+    _package $_co
+  }"
+done
+
+sha256sums=('01281376647d6578768b3df39451145e4ddea700f9ef66dc711cae475d5a77c3'
+            '37dfafc6337fe15f11219e2f26d137847f533cfa6851477dd989983e369478db'
+            'ec00238ae753aeb3daab9552caab248b90ba75917ffdd859327da0f2f729c1b9'
+            '9a44fed6d69de3f9519737a97fb25eccfd088f8cc5132463740f4cb84f631da4'
+            '4e5bb2090d302b059709cc9127e56a4d357dc0cdfe229c05275ad6ece85d8790'
+            'ea44959f48e049e9d0177fde26437f0a163db8db9ae6352eb96f974045badb05'
+            '66f8852123fccc0d525913cd078f05094cd8c01ea71953672f2658a1d6b9caae'
+            'e2a73413ceb9b70dd642c452a66e5e9a8a4c673b7ddb5107fd0c5e77997c59fa'
+            '6978e235a8d3c9e0a779676f83c0c8e22e8e3f71ee6809fba53adc7767468d76'
+            '490c8ae7bf411cef10e6ed4b0f467aac565422fbc15da027d5294681ebc0c9c9'
+            '4b58c9828b253b61af5e52bca85f6f0a9ae6e3be7bed9f46810dd16a6b590334'
+            'e0d1dd7bb594b10e2571a5a22ac82d999418597e0b0baa8338c08a557539d0b6'
+            '5aa70a255dd1121e60c1de84e159940b13fabcb9d2b3306dd0c489d97b3d64fd'
+            '90a5899511f71463912c7d5547c9667d67b035f8648d8759434770fff9761bd5'
+            '2293fd64e663819a79b1c1ee411dc9113e012e29f8cd9ce7e977eb9986a6ab89'
+            'ce0500a1ec4168c0f94f46d161620c196f00b64c1d00091c5f078f15a7f30e20'
+            '4e9bb0c067f9fd80987b59351126a39ce82615f71d6d44889de613e35d8096de'
+            'b7bd4d3568404fd516b2d9622c5a469a220aa72802a8576805212c01fcb8bedb'
+            '78c2d794c26ad3d29e5ce2bd6eb538b60691f327368a62ae663f5a095e11d3b6'
+            '089613450ca4883349da9492980501508c18fc3ae63c8c569a27554c7f8fe4df'
+            'f8f725a4240b5a2f76db5c2a538d483498329b817b573f4c91ccbaeba7e704f0')
+
+_package() {
+  pkgdesc="Spanish ($2) hunspell dictionary"
+  depends=(hunspell)
+  conflicts=(hunspell-es)
+
+  LANG=en_US.utf8 bsdtar -xf es_$1.oxt
+
+  install -dm755 "$pkgdir"/usr/share/hunspell
+  install -Dm644 es_$1.dic es_$1.aff "$pkgdir/usr/share/hunspell"
+
+  install -d "$pkgdir"/usr/share/myspell/dicts
+  pushd "$pkgdir/usr/share/myspell/dicts"
+    for _file in "$pkgdir"/usr/share/hunspell/*; do
+      ln -sv /usr/share/hunspell/$(basename $_file) .
+    done
+  popd
+
+# Install webengine dictionaries   
+  install -d "$pkgdir"/usr/share/qt{,6}/qtwebengine_dictionaries/
+  for _file in "$pkgdir"/usr/share/hunspell/*.dic; do
+  _filename=$(basename $_file)
+    /usr/lib/qt6/qwebengine_convert_dict $_file "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic}
+  ln -rs "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic} "$pkgdir"/usr/share/qt/qtwebengine_dictionaries/
+  done
+
+  install -Dm644 README.txt -t "$pkgdir/usr/share/doc/$pkgname"
+}
+
+package_hunspell-es_any() {
+  pkgdesc="Spanish (generic) hunspell dictionary"
+  depends=(hunspell)
+  conflicts=(hunspell-es)
+  replaces=(hunspell-es)
+
+  LANG=en_US.utf8 bsdtar -xf es.oxt
+
+  install -Dm644 es.dic es.aff -t "$pkgdir"/usr/share/hunspell
+
+  install -d "${pkgdir}/usr/share/myspell/dicts"
+  pushd "$pkgdir/usr/share/myspell/dicts"
+    for file in "$pkgdir"/usr/share/hunspell/*; do
+      ln -sv /usr/share/hunspell/$(basename $file) .
+    done
+  popd
+  
+# Install webengine dictionaries   
+  install -d "$pkgdir"/usr/share/qt{,6}/qtwebengine_dictionaries/
+  for _file in "$pkgdir"/usr/share/hunspell/*.dic; do
+  _filename=$(basename $_file)
+    /usr/lib/qt6/qwebengine_convert_dict $_file "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic}
+  ln -rs "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic} "$pkgdir"/usr/share/qt/qtwebengine_dictionaries/
+  done
+
+  install -Dm644 README.txt -t "$pkgdir/usr/share/doc/$pkgname"
+}
+
+package_hyphen-es() {
+  pkgdesc="Spanish hyphenation rules"
+  depends=(hyphen)
+
+  install -Dm644 hyph_es.dic -t "$pkgdir"/usr/share/hyphen/
+
+  pushd "$pkgdir"/usr/share/hyphen/
+  for _co in "${_countries[@]}"; do
+    ln -s hyph_es.dic hyph_es_${_co%% *}.dic
+  done
+  popd
+
+  install -d "$pkgdir"/usr/share/myspell/dicts
+  pushd "$pkgdir"/usr/share/myspell/dicts
+    for file in "$pkgdir"/usr/share/hyphen/*; do
+      ln -sv /usr/share/hyphen/$(basename $file) .
+    done
+  popd
+  
+  install -Dm644 README_hyph_es.txt -t "$pkgdir"/usr/share/doc/$pkgname/
+}
+
+package_mythes-es() {
+  pkgdesc="Spanish thesaurus"
+  depends=(libmythes)
+
+  LANG=en_US.utf8 bsdtar -xf es.oxt
+  install -Dm644 th_es_v2.* -t "$pkgdir"/usr/share/mythes
+
+  pushd "$pkgdir"/usr/share/mythes/
+  for _co in "${_countries[@]}"; do
+    ln -s th_es_v2.idx "th_es_"${_co%% *}"_v2.idx" || true
+    ln -s th_es_v2.dat "th_es_"${_co%% *}"_v2.dat" || true
+  done
+  popd
+
+  install -d "$pkgdir"/usr/share/myspell/dicts
+  pushd "$pkgdir"/usr/share/myspell/dicts
+  for file in "$pkgdir"/usr/share/mythes/*; do
+    ln -sv /usr/share/mythes/$(basename $file) .
+  done
+  popd
+  
+  install -Dm644 README_th_es.txt -t "$pkgdir"/usr/share/doc/$pkgname/
+}

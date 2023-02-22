@@ -1,0 +1,36 @@
+# Maintainer: Frederik Schwan <freswa at archlinux dot org>
+# Contributor: Alexander F Rødseth <xyproto@archlinux.org>
+# Contributor: Ronald van Haren <ronald.archlinux.org>
+# Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
+# Contributor: <boromil@gmail.com>
+
+pkgname=libopenraw
+pkgver=0.3.4
+pkgrel=1
+pkgdesc='Library for decoding RAW files'
+arch=('x86_64')
+url='https://libopenraw.freedesktop.org/'
+license=('LGPL')
+depends=('gdk-pixbuf2')
+makedepends=('boost' 'libxml2' 'cargo')
+provides=('libopenraw.so' 'libopenrawgnome.so')
+source=("https://libopenraw.freedesktop.org/download/${pkgname}-${pkgver}.tar.bz2"{.asc,})
+b2sums=('SKIP'
+        'b224e94e7f203b808bbf42566321c3175f553b7b2ba7db2afd31f8951c2b553cb5d5741d30de00598f1e6f9318ce16ed98ec19f6f8aaa3eee999ae790d7e8277')
+validpgpkeys=('6C44DB3E0BF3EAF5B433239A5FEE05E6A56E15A3') # Hubert Figuiere <hub@mozilla.com>
+
+prepare() {
+# Fix libopenraw dependency in -gnome pc file
+  sed -e 's|libopenraw-0.1|libopenraw-0.3|' -i $pkgname-$pkgver/gnome/libopenraw-gnome-0.3.pc.in
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  make -C ${pkgname}-${pkgver} DESTDIR="${pkgdir}" install
+}

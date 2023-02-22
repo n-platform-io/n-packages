@@ -1,0 +1,35 @@
+# Maintainer: Justin Kromlinger <hashworks@archlinux.org>
+
+pkgname=opensearch-geospatial-plugin
+pkgver=2.5.0.0
+pkgrel=1
+_opensearchver=2.5.0
+_jdkver=11
+pkgdesc="OpenSearch Geospatial Plugin"
+arch=('x86_64')
+url="https://opensearch.org/docs/latest/dashboards/geojson-regionmaps/"
+license=('Apache')
+depends=("opensearch=${_opensearchver}")
+makedepends=("java-environment=${_jdkver}" 'unzip')
+source=(
+  "${pkgname}-${pkgver}.tar.gz::https://github.com/opensearch-project/geospatial/archive/${pkgver}.tar.gz"
+)
+sha256sums=('e474b162f1dfc9e4f1abd9fe3ac419ad1e6ea630850d29c6b5a00e7e47871876')
+
+build() {
+  cd "geospatial-${pkgver}"
+  export JAVA_HOME="/usr/lib/jvm/java-${_jdkver}-openjdk"
+  export PATH="/usr/lib/jvm/java-${_jdkver}-openjdk/bin:$PATH"
+  export GRADLE_OPTS="-Dbuild.snapshot=false -Dopensearch.version=${_opensearchver}"
+  ./gradlew build \
+    --exclude-task ":jacocoTestReport" \
+    --exclude-task ":jacocoTestCoverageVerification"
+}
+
+package() {
+  install -dm755 "${pkgdir}/usr/share/opensearch/plugins/opensearch-geospatial"
+  cd "${pkgdir}/usr/share/opensearch/plugins/opensearch-geospatial"
+  unzip "${srcdir}/geospatial-${pkgver}/build/distributions/opensearch-geospatial-${pkgver}.zip"
+
+  install -Dm644 "${srcdir}/geospatial-${pkgver}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

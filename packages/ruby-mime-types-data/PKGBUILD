@@ -1,0 +1,22 @@
+# Maintainer: Anatol Pomozov <anatol.pomozov@gmail.com>
+
+_gemname=mime-types-data
+pkgname=ruby-$_gemname
+pkgver=3.2022.0105
+pkgrel=1
+pkgdesc='provides a registry for information about MIME media type definitions'
+arch=(any)
+url='https://github.com/mime-types/mime-types-data/'
+license=(MIT)
+depends=(ruby)
+makedepends=('ruby-rdoc')
+options=(!emptydirs)
+source=(https://rubygems.org/downloads/$_gemname-$pkgver.gem)
+noextract=($_gemname-$pkgver.gem)
+sha256sums=('d8c401ba9ea8b648b7145b90081789ec714e91fd625d82c5040079c5ea696f00')
+
+package() {
+  local _gemdir="$(ruby -e'puts Gem.default_dir')"
+  gem install --ignore-dependencies --no-user-install -i "$pkgdir/$_gemdir" -n "$pkgdir/usr/bin" $_gemname-$pkgver.gem
+  rm "$pkgdir/$_gemdir/cache/$_gemname-$pkgver.gem"
+}

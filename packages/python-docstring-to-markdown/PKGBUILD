@@ -1,0 +1,28 @@
+# Maintainer: Daniel M. Capella <polyzen@archlinux.org>
+# Contributor: Hugo Osvaldo Barrera <hugo@barrera.io>
+
+_name=docstring-to-markdown
+pkgname=python-docstring-to-markdown
+pkgver=0.11
+pkgrel=1
+pkgdesc='On the fly conversion of Python docstrings to markdown'
+arch=('any')
+url=https://github.com/krassowski/docstring-to-markdown
+license=('LGPL2.1')
+depends=('python')
+makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+source=("https://files.pythonhosted.org/packages/source/${_name::1}/${_name}/${_name}-${pkgver}.tar.gz")
+sha256sums=('5b1da2c89d9d0d09b955dec0ee111284ceadd302a938a03ed93f66e09134f9b5')
+b2sums=('b5f946259abfea765d35973e91bcfd74abed9f5eb2a46a9d89d3aacb1915522678c454415454e49d553631187bb7a03271d92256c519d220c86b2791498a46b9')
+
+build() {
+  cd $_name-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+
+# vim:set ts=2 sw=2 et:

@@ -1,0 +1,32 @@
+# Maintainer: AndyRTR <andyrtr@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=xf86-input-elographics
+pkgver=1.4.3
+pkgrel=1
+pkgdesc="X.org Elographics TouchScreen input driver"
+arch=(x86_64)
+license=('custom')
+url="https://xorg.freedesktop.org/"
+depends=('glibc')
+makedepends=('xorg-server-devel' 'X-ABI-XINPUT_VERSION=24.4' 'xorgproto')
+conflicts=('xorg-server<21.1.1' 'X-ABI-XINPUT_VERSION<24' 'X-ABI-XINPUT_VERSION>=25')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('3653beaa90d61b7827c9217774ca394de4d7d36a54f0d004702ff29c7b7f8960996a75a45d0db6f4a9921c71844c401072071c785cf371787bbd8941bac92986'
+            'SKIP')
+#validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # "Matt Turner <mattst88@gmail.com>" # key got revoked
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+}

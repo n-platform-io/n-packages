@@ -1,0 +1,66 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgbase=lsp-plugins
+pkgname=(lsp-plugins lsp-plugins-docs)
+pkgver=1.2.4
+pkgrel=1
+pkgdesc="Collection of free plugins compatible with LADSPA, LV2 and LinuxVST"
+arch=(x86_64)
+url="https://lsp-plug.in"
+license=(LGPL3)
+makedepends=(cairo gcc-libs glibc hicolor-icon-theme libglvnd libx11 libxrandr jack ladspa libsndfile lv2 php)
+checkdepends=(jq lv2lint)
+source=(https://github.com/sadko4u/$pkgname/releases/download/$pkgver/$pkgname-src-$pkgver.tar.gz)
+sha512sums=('434b47296a52475d8657d65a2f99c19177cd9f21ae44bed79d6a7447474c4063db34e5ecb1e2ec76188a0e5fc5485dfbf5d2fb3a6f368b075103d06c824da269')
+b2sums=('1916096eb4716f0297ada67c6630f769714a52f0f8d86c2cfd0617c09cc797e55999357d481774d4eeeab6e6711f7f9d9a71e45b46f52c077a6a5b847b6b099c')
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+build() {
+  make config VERBOSE=1 FEATURES='doc lv2 vst2 jack ladspa xdg' PREFIX=/usr -C $pkgbase
+  make VERBOSE=1 -C $pkgbase
+}
+
+check() {
+  local _plugin
+  local _lv2_uri="http://lsp-plug.in/plugins/lv2/"
+
+  # install to temporary location
+  make FEATURES=lv2 DESTDIR="$PWD/test" install -C $pkgbase
+
+  for _plugin in $(jq -r '.plugins[].id' $pkgbase/.build/target/lsp-plugin-fw/plugins.json); do
+    printf "Testing plugin %s\n" "$_plugin"
+    lv2lint -Mpack -I "$PWD/test/usr/lib/lv2/$pkgname.lv2/" $_lv2_uri$_plugin
+  done
+}
+
+package_lsp-plugins() {
+  groups=(ladspa-plugins lv2-plugins pro-audio vst-plugins)
+  depends=(cairo gcc-libs glibc hicolor-icon-theme libglvnd libsndfile.so libx11 libxrandr)
+  optdepends=(
+    'jack: for standalone applications'
+    'ladspa-host: for LADSPA plugins'
+    'lsp-plugins-docs: for documentation'
+    'lv2-host: for LV2 plugins'
+    'vst-host: for VST plugins'
+  )
+
+  make PREFIX=/usr DESTDIR="$pkgdir" install -C $pkgbase
+
+  cd "$pkgdir"
+  _pick docs "$pkgdir/usr/share/doc"
+}
+
+package_lsp-plugins-docs() {
+  pkgdesc+=" (documentation)"
+
+  mv -v docs/* "$pkgdir"
+}

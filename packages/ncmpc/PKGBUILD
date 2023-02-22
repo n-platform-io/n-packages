@@ -1,0 +1,34 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+# Contributor: Gaetan Bisson <bisson@archlinux.org>
+# Contributor: Angel Velasquez <angvp@archlinux.org> 
+# Contributor: Andrea Scarpino <andrea@archlinux.org>
+# Contributor: damir <damir@archlinux.org>
+# Contributor: Daniel Bainton <dpb [at] backarrow.org>
+
+pkgname=ncmpc
+pkgver=0.47
+pkgrel=1
+pkgdesc="Fully featured MPD client which runs in a terminal"
+arch=(x86_64)
+url=https://www.musicpd.org/clients/ncmpc/
+license=(GPL2)
+depends=(gcc-libs glibc lirc pcre2)
+makedepends=(boost libmpdclient meson ncurses python-sphinx)
+optdepends=('python-requests: for lyrics script')
+source=(https://www.musicpd.org/download/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz{,.sig})
+sha512sums=('6c9990ca9a0781eef67fae8b20ceec5fc00177b1db2b08cfdf122dd1f61f87a92030baadcaac154d73ddee622c963481d4e37d46f76a4ef21e51d4f18a6f3e6a'
+            'SKIP')
+b2sums=('4b9e5bcc435b6064c054ad84000986942a699993e78decb26b73b4f3ec8d261e4e752e11d40ed5bdcbaab260b37f1a59b99708be05ade44973fee3f2b1e6d9d1'
+        'SKIP')
+validpgpkeys=('0392335A78083894A4301C43236E8A58C6DB4512') # Max Kellermann <max@blarg.de>
+
+build() {
+  arch-meson -D lyrics_screen=true -D chat_screen=true build $pkgname-$pkgver
+  ninja -C build
+}
+
+package() {
+  depends+=(libmpdclient.so libncursesw.so)
+
+  DESTDIR="$pkgdir" ninja -C build install
+}

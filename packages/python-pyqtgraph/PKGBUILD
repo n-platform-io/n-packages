@@ -1,0 +1,31 @@
+# Maintainer: Filipe Laíns (FFY00) <lains@archlinux.org>
+# Contributor: Windel Bouwman <windel at windel dot nl>
+# Contributor: Jakub Klinkovský <kuba.klinkovsky@gmail.com>
+
+_pkgname=pyqtgraph
+pkgname=python-$_pkgname
+pkgver=0.13.1
+pkgrel=1
+pkgdesc='Scientific Graphics and GUI Library for Python'
+arch=('any')
+url='http://www.pyqtgraph.org'
+license=('MIT')
+makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+depends=('python' 'qt5-python-bindings' 'python-numpy')
+optdepends=('python-opengl: 3d graphics')
+source=("$_pkgname-$pkgver.tar.gz::https://github.com/pyqtgraph/pyqtgraph/archive/pyqtgraph-$pkgver.tar.gz")
+sha512sums=('bcd3d0c9c1d91ad2ea3f85f8e34e68ab999fce636ed336362253f09a7863a62c4b635d71c137c9458532c7d1f76dfc8433d476cd84121cf89488fb0860039b8f')
+
+build() {
+  cd $_pkgname-$_pkgname-$pkgver
+
+  python -m build -nw
+}
+
+package() {
+  cd $_pkgname-$_pkgname-$pkgver
+
+  python -m installer -d "$pkgdir" dist/*.whl
+
+  install -Dm 644 LICENSE.txt "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

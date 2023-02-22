@@ -1,0 +1,23 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: Nicola Squartini <tensor5@gmail.com>
+
+pkgname=asar
+pkgver=3.2.2
+pkgrel=1
+pkgdesc='Creating Electron app packages'
+arch=('any')
+url='https://github.com/electron/asar'
+license=('MIT')
+depends=('nodejs')
+makedepends=('npm')
+options=(!emptydirs)
+noextract=("${_pkgname}-${pkgver}.tgz")
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/electron/asar/archive/refs/tags/v${pkgver}.tar.gz")
+sha512sums=('32354e03cfcf14624725410c2d710177ed95ecb8d56867180890f7fa31a460f2ff54356cc9606c6b53aa8ca1a74668ba176351e03eb7fb55bf006e383126424c')
+
+package() {
+    npm install -g --prefix "${pkgdir}/usr" "${srcdir}/${pkgname}-${pkgver}.tar.gz"
+    chown -R root:root "${pkgdir}"
+
+    install -Dm644 "${pkgdir}/usr/lib/node_modules/@electron/asar/LICENSE.md" "${pkgdir}/usr/share/licenses/asar/LICENSE.md"
+}

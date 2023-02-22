@@ -1,0 +1,31 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=python-wilderness
+pkgver=0.1.9
+pkgrel=2
+pkgdesc="Easy multi-level command line applications with man pages"
+url="https://github.com/GjjvdBurg/wilderness"
+license=('MIT')
+arch=('any')
+depends=('python')
+makedepends=('python-setuptools')
+checkdepends=('man-db')
+source=("https://github.com/GjjvdBurg/wilderness/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('2073fb3f5d6ffada132235a1c1691d6d03f6be56531c3a38f09db08b6361e91ea87b662e569d319c8dbbe69a5500cb1708c5509cd6a28f85a0dfdf4a58c30ba6')
+
+build() {
+  cd wilderness-$pkgver
+  python setup.py build
+}
+
+check() {
+  cd wilderness-$pkgver
+  python -m unittest discover
+}
+
+package() {
+  cd wilderness-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

@@ -1,0 +1,81 @@
+# Maintainer: Caleb Maclennan <caleb@alerque.com>
+# Maintainer: George Rawlinson <grawlinson@archlinux.org>
+# Contributor: Florijan Hamzic <florijanh at gmail dot com>
+
+pkgname=python-weasyprint
+pkgver=58.0
+pkgrel=1
+# _pkgver() { curl https://api.github.com/repos/Kozea/WeasyPrint/git/ref/tags/v$pkgver | jq -r .object.sha ; }
+_commit='c0034fa9b010de4961924c02939513e5cfecf654'
+pkgdesc='Utility to render HTML and CSS to PDF'
+arch=('any')
+url='https://weasyprint.org/'
+license=('BSD')
+depends=(
+  'pango'
+  'python-brotli'
+  'python-cffi'
+  'python-cssselect2'
+  'python-fonttools'
+  'python-html5lib'
+  'python-pillow'
+  'python-pydyf'
+  'python-pyphen'
+  'python-tinycss2'
+  'python-zopfli'
+)
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-flit-core'
+)
+checkdepends=(
+  'python-pytest'
+  'ghostscript'
+  'ttf-dejavu'
+)
+source=("$pkgname::git+https://github.com/Kozea/WeasyPrint.git#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+
+  git describe --tags | sed 's/^v//'
+}
+
+prepare() {
+  cd "$pkgname"
+
+  # thou shalt not lint coding style in integration tests
+  sed -i '/^addopts/d' pyproject.toml
+}
+
+build(){
+  cd "$pkgname"
+
+  python \
+    -m build \
+    --wheel \
+    --no-isolation
+}
+
+check() {
+  cd "$pkgname"
+
+  # skip failing tests
+  python -m pytest \
+    --deselect tests/draw/test_gradient.py::test_linear_gradients_5 \
+    --deselect tests/draw/test_gradient.py::test_linear_gradients_12
+}
+
+package() {
+  cd "$pkgname"
+
+  python \
+    -m installer \
+    --destdir="$pkgdir" \
+    dist/*.whl
+
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+}

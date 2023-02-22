@@ -1,0 +1,42 @@
+# Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
+# Contributor: Chris Severance aur.severach AatT spamgourmet.com
+
+_pyname=pcapy-ng
+pkgname=python-pcapy
+pkgver=1.0.5
+pkgrel=1
+pkgdesc='Extension module that interfaces with the libpcap packet capture library'
+url='https://github.com/stamparm/pcapy-ng'
+arch=('x86_64')
+license=('Apache')
+depends=('python' 'libpcap')
+makedepends=('python' 'python-setuptools')
+source=(https://github.com/stamparm/pcapy-ng/archive/${pkgver}/${_pyname}-${pkgver}.tar.gz)
+sha256sums=('69b0294fdebbb2acd66f171e9b606db2fcd927d256674bb6681b9bdc2e0c5ca8')
+sha512sums=('aa41772541a769c4a4d8f76b46dac26079e5c66f915cfa57b9344186e5d823c928ea16bd327c35eecf8beaf0f74e881501d68d2583543142fecdb83ed7f9eafe')
+
+prepare() {
+  cd ${_pyname}-${pkgver}
+  sed -i '/self.assertEqual(refNone, sys.getrefcount(None))/d' tests/pcapytests.py
+}
+
+build() {
+  cd ${_pyname}-${pkgver}
+  python setup.py build
+}
+
+check() {
+  cd ${_pyname}-${pkgver}/tests
+  local PYTHONVERSION="$(python -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')"
+  PYTHONPATH="../build/lib.linux-${CARCH}-${PYTHONVERSION}" \
+    python pcapytests.py
+}
+
+package() {
+  cd ${_pyname}-${pkgver}
+  python setup.py install -O1 --root="${pkgdir}" --skip-build
+  install -Dm 644 pcapy.html ChangeLog -t "${pkgdir}/usr/share/doc/${pkgname}"
+  rm -r "${pkgdir}/usr/share/doc/${_pyname}"
+}
+
+# vim: ts=2 sw=2 et:

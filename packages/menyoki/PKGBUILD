@@ -1,0 +1,39 @@
+# Maintainer: Orhun Parmaksız <orhun@archlinux.org>
+
+pkgname=menyoki
+pkgver=1.6.1
+pkgrel=1
+pkgdesc="Screen{shot,cast} and perform ImageOps on the command line"
+arch=('x86_64')
+url="https://github.com/orhun/menyoki"
+license=('GPL3')
+depends=('gcc-libs' 'libxrandr' 'libsixel')
+makedepends=('cargo')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha512sums=('ef37d67cf29540a4f5495fa792129e2953595bf7b4af5ce54c4889fe6a4225951c72f581f89c2508fbb69e72e60356704c902c76fb0820f4d870fa1a1bf5b2a8')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  cargo build --release --frozen --features sixel
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  cargo test --frozen
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm 755 "target/release/$pkgname" -t "$pkgdir/usr/bin"
+  install -Dm 644 README.md -t "$pkgdir/usr/share/doc/$pkgname"
+  install -Dm 644 "man/$pkgname.1" -t "$pkgdir/usr/share/man/man1"
+  install -Dm 644 "man/$pkgname.conf.5" -t "$pkgdir/usr/share/man/man5"
+  install -Dm 644 "completions/$pkgname.bash" "${pkgdir}/usr/share/bash-completion/completions/$pkgname"
+  install -Dm 644 "completions/$pkgname.fish" -t "${pkgdir}/usr/share/fish/completions"
+  install -Dm 644 "completions/$pkgname.zsh" "${pkgdir}/usr/share/zsh/site-functions/_$pkgname"
+}

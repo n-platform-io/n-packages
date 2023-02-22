@@ -1,0 +1,32 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Josip Ponjavic <josipponjavic at gmail dot com>
+# Contributor: Xu Fasheng <fasheng.xu[AT]gmail.com>
+
+pkgname=deepin-picker
+pkgver=5.0.28
+pkgrel=1
+pkgdesc='Color picker tool for deepin'
+arch=('x86_64')
+url="https://github.com/linuxdeepin/deepin-picker"
+license=('GPL3')
+depends=('deepin-qt5integration' 'libxtst' 'qt5-svg')
+makedepends=('qt5-tools' 'deepin-gettext-tools')
+groups=('deepin-extra')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxdeepin/deepin-picker/archive/$pkgver.tar.gz")
+sha512sums=('529d5b6e5cb0886e67ee0f24c407665e26f513e427a8eb585c5c25b9afa4cf7ecc10eb433a6c569da35ebd07d05b519c778dd92aa1ee1295ee96121844fe7f1b')
+
+prepare() {
+  cd deepin-picker-$pkgver
+  sed -i '/#include <QPainter>/a #include <QPainterPath>' src/animation.cpp src/picker.cpp
+}
+
+build() {
+  cd deepin-picker-$pkgver
+  qmake-qt5 PREFIX=/usr
+  make
+}
+
+package() {
+  cd deepin-picker-$pkgver
+  make INSTALL_ROOT="$pkgdir" install
+}

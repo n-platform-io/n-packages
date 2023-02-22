@@ -1,0 +1,51 @@
+# Maintainer: George Rawlinson <grawlinson@archlinux.org>
+# Contributor: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=python-xmlschema
+_pkgname="${pkgname#python-}"
+pkgver=2.2.1
+pkgrel=1
+pkgdesc='An XML Schema validator and decoder'
+arch=('any')
+url='https://github.com/sissaschool/xmlschema'
+license=('MIT')
+depends=('python' 'python-elementpath')
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-wheel'
+  'python-setuptools'
+)
+checkdepends=('python-lxml' 'python-jinja')
+optdepends=('python-jinja: for XSD based code generators')
+_commit='053fc5364f4993f2df1337a573e238bf05aa9017'
+source=("$pkgname::git+$url#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+
+  git describe --tags | sed 's/^v//'
+}
+
+build() {
+  cd "$pkgname"
+
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$pkgname"
+
+  PYTHONPATH="$PWD" python -m unittest
+}
+
+package() {
+  cd "$pkgname"
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # license
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+}

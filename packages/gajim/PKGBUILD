@@ -1,0 +1,47 @@
+# Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
+# Contributor: Eric Bélanger <eric@archlinux.org>
+
+pkgname=gajim
+_pkgver=1.6.1
+#_fixupver=2
+pkgver=${_pkgver}
+#pkgver=${_pkgver}.r${_fixupver}
+pkgrel=1
+pkgdesc='Full featured and easy to use XMPP (Jabber) client'
+url='https://gajim.org/'
+arch=('any')
+license=('GPL3')
+depends=('gtk3' 'gtksourceview4' 'python-cairo' 'python-gobject' 'python-keyring' 'python-nbxmpp'
+         'python-cryptography' 'python-precis_i18n' 'python-css-parser'
+         'python-distro' 'hicolor-icon-theme' 'python-pillow' 'python-gssapi' 'python-netifaces'
+         'python-packaging')
+makedepends=('python-build' 'python-installer' 'python-wheel' 'python-setuptools')
+optdepends=('farstream: start audio and video chat'
+            'gst-plugins-good: for video/voice support'
+            'gst-plugins-bad: for video/voice support'
+            'gst-plugins-ugly: for video/voice support'
+            'gst-libav: for video/voice support'
+            'gst-python: for video/voice support'
+            'gspell: for spell checking support'
+            'geoclue: share current location'
+            'libxss: measure idle time, in order to set auto status'
+            'python-gnupg: encrypting chat messages with OpenPGP'
+            'python-axolotl: OMEMO support'
+            'python-qrcode: generate QR codes for OMEMO keys'
+            'gsound: Notification Sounds')
+source=(https://www.gajim.org/downloads/${_pkgver%.*}/gajim-${_pkgver}.tar.gz)
+#source=(https://www.gajim.org/downloads/${_pkgver%.*}/gajim-${_pkgver}-${_fixupver}.tar.gz)
+sha512sums=('080ae0c5c86170085361b30fa7e60e4b8bbcf002e0b46307d809a6e1a1bbcd070391bc03dcb44399d73dab2562434308aaf907cd05813e6dc5b464e6cdebf537')
+b2sums=('f675b21321cbed2480f92beec37dd886e1e954839c6f1b13550a23ba9ab7c9e22000d5d28b8fe2b1c4fa09ae7518c6f7805124114a228f7271669de35c8aadef')
+
+build() {
+  cd ${pkgname}-${_pkgver}
+  python -m build --wheel --no-isolation
+}
+
+package() {
+  cd ${pkgname}-${_pkgver}
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+
+# vim: ts=2 sw=2 et:

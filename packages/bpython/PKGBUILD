@@ -1,0 +1,40 @@
+# Maintainer: Kyle Keen < keenerd at gmail >
+# Contributor: Thomas Dziedzic < gostrc at gmail >
+# Contributor: Mike Sampson <mike at sambodata dot com>
+# Contributor: Anton Bazhenov <anton.bazhenov at gmail>
+
+pkgname=bpython
+pkgver=0.23
+pkgrel=1
+pkgdesc='Fancy ncurses interface to the Python interpreter'
+arch=('any')
+url='https://bpython-interpreter.org/'
+license=('MIT')
+depends=('python-pygments' 'python-requests' 'python-curtsies' 'python-greenlet'
+         'python-six' 'python-typing_extensions' 'python-pyxdg')
+optdepends=('python-urwid: for bpython-urwid'
+            'python-jedi: multiline completion'
+            'python-watchdog: module reloading')
+makedepends=('python-setuptools')
+checkdepends=('python-pytest')
+#source=(https://bpython-interpreter.org/releases/bpython-${pkgver}.tar.gz)  # slow
+#source=("https://github.com/bpython/bpython/archive/$pkgver-release.tar.gz")  # missing version data
+source=("https://files.pythonhosted.org/packages/source/b/bpython/bpython-$pkgver.tar.gz")
+sha256sums=('9f0078abc887c48af088691e2f64797d6ca994ac0f4bc03c38d06f657d7c052a')
+
+build() {
+  cd "$srcdir/bpython-$pkgver"
+  python setup.py build
+}
+
+check() {
+  cd "$srcdir/bpython-$pkgver"
+  pytest --deselect bpython/test/test_interpreter.py::TestInterpreter::test_syntaxerror
+}
+
+package() {
+  cd "$srcdir/bpython-$pkgver"
+
+  python setup.py install --root="$pkgdir" --optimize=0
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/bpython/LICENSE"
+}

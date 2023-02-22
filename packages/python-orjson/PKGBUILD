@@ -1,0 +1,38 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+_name=orjson
+pkgname=python-orjson
+pkgver=3.8.6
+pkgrel=1
+pkgdesc="Fast, correct Python JSON library supporting dataclasses and datetimes"
+arch=(x86_64)
+url="https://github.com/ijl/orjson"
+license=(Apache MIT)
+depends=(python)
+makedepends=(maturin python-installer rust)
+checkdepends=(python-arrow python-pendulum python-psutil python-pytest
+python-pytz python-xxhash)
+source=($pkgname-$pkgver.tar.gz::https://github.com/ijl/$_name/archive/$pkgver.tar.gz)
+sha512sums=('f931ae11d075765fd8d83634ee631899525c77147f36b09e111c16174a2aeee4b5b9c9c6e1a7bc2f2ab1b4ce60ca967416ac96d0576141fad9d1254685895220')
+b2sums=('7a5a029175eb1d0f014b84de4ebd65831d1c93593acb4f672a728ad89410c9c7e421c35b2631e99eb6799d5b67574dcc01aa839b0459a5ad9a63a7531b3ffd3f')
+
+build() {
+  cd $_name-$pkgver
+  maturin build --release --strip
+}
+
+check() {
+  local _site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+
+  cd $_name-$pkgver
+  python -m installer --destdir=test_dir target/wheels/*.whl
+  export PYTHONPATH="test_dir/$_site_packages:$PYTHONPATH"
+  pytest -vv
+}
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" target/wheels/*.whl
+  install -vDm 644 {CHANGELOG,README}.md -t "$pkgdir/usr/share/doc/$pkgname/"
+  install -vDm 644 LICENSE-* -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

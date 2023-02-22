@@ -1,0 +1,26 @@
+# Maintainer: Eric Bélanger <eric@archlinux.org>
+
+pkgname=lincity-ng
+pkgver=2.0
+pkgrel=10
+pkgdesc="A city simulation game"
+arch=('x86_64')
+url="https://sourceforge.net/projects/lincity-ng.berlios/"
+license=('GPL' 'custom')
+depends=('sdl_mixer' 'sdl_ttf' 'sdl_image' 'physfs' 'libxml2' 'sdl_gfx' 'libgl')
+makedepends=('ftjam' 'mesa' 'glu')
+source=(https://sourceforge.net/projects/${pkgname}.berlios/files/${pkgname}-${pkgver}.tar.bz2)
+sha256sums=('a6b206a5dfc7a817669f4fc7cbc012bd4a7073c42f918ceb2f1f484cc0b06606')
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  jam
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  jam -sprefix="${pkgdir}/usr" install
+  install -D -m644 COPYING-data.txt "${pkgdir}/usr/share/licenses/${pkgname}/COPYING-data.txt"
+  install -D -m644 COPYING-fonts.txt "${pkgdir}/usr/share/licenses/${pkgname}/COPYING-fonts.txt"
+}

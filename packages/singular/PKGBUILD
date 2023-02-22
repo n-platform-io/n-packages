@@ -1,0 +1,48 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+# Contributor: Rémy Oudompheng <oudomphe@clipper.ens.fr>
+
+pkgname=singular
+_majver=4-3-1
+_patchver=3
+pkgver=${_majver//-/.}.p${_patchver}
+#pkgver=${_majver//-/.}
+pkgrel=1
+pkgdesc='Computer Algebra System for polynomial computations'
+arch=(x86_64)
+url='https://www.singular.uni-kl.de/'
+license=(GPL)
+depends=(flint cddlib)
+makedepends=(doxygen)
+provides=(singular-factory)
+source=(ftp://jim.mathematik.uni-kl.de/pub/Math/Singular/SOURCES/$_majver/singular-${_majver//-/.}p${_patchver}.tar.gz
+#source=(ftp://jim.mathematik.uni-kl.de/pub/Math/Singular/SOURCES/$_majver/singular-${_majver//-/.}.tar.gz
+         doc-$_majver.tbz2::ftp://jim.mathematik.uni-kl.de/pub/Math/Singular/SOURCES/$_majver/doc.tbz2)
+sha256sums=('66cfaeee7ab909272fd81050a09cae3ec115652a01adde014a5128a54b97397a'
+            'a1d6500d37ae237a1841202a685d2631048c06fe6d0547038e161d8f059eb767')
+options=(!zipman)
+
+build() {
+  cd singular-${_majver//-/.}
+  ./configure \
+    --prefix=/usr \
+    --libexecdir=/usr/lib \
+    --enable-bigintm-module \
+    --enable-bigintm-module \
+    --enable-Order-module \
+    --enable-python-module \
+    --enable-gfanlib-module \
+    --enable-polymake-module
+# https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+}
+
+check() {
+  cd singular-${_majver//-/.}
+  make check
+}
+  
+package() {
+  cd singular-${_majver//-/.}
+  make DESTDIR="$pkgdir" install
+}

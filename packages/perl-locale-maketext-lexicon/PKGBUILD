@@ -1,0 +1,27 @@
+# Maintainer: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: Charles Mauch <cmauch@gmail.com>
+
+pkgname=perl-locale-maketext-lexicon
+pkgver=1.00
+pkgrel=4
+pkgdesc="Perl/CPAN Module Locale::Maketext::Lexicon : Use other catalog formats in Maketext"
+arch=(any)
+depends=(perl)
+url="https://search.cpan.org/dist/Locale-Maketext-Lexicon"
+license=("GPL" "PerlArtistic")
+options=(!emptydirs)
+source=("https://search.cpan.org/CPAN/authors/id/D/DR/DRTECH/Locale-Maketext-Lexicon-$pkgver.tar.gz")
+sha256sums=('b73f6b04a58d3f0e38ebf2115a4c1532f1a4eef6fac5c6a2a449e4e14c1ddc7c')
+
+build() {
+  cd "$srcdir"/Locale-Maketext-Lexicon-$pkgver
+  PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+  make
+}
+
+package() {
+  cd "$srcdir"/Locale-Maketext-Lexicon-$pkgver
+  make install DESTDIR="$pkgdir"
+  find "$pkgdir" -name '.packlist' -delete
+  find "$pkgdir" -name '*.pod' -delete
+}

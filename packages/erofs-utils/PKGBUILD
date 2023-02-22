@@ -1,0 +1,42 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgname=erofs-utils
+pkgver=1.5
+pkgrel=3
+pkgdesc="Userspace utilities for linux-erofs file system"
+arch=(x86_64)
+url="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git"
+license=(GPL2)
+depends=(glibc lz4)
+makedepends=(fuse2 util-linux xz)
+optdepends=(
+  'fuse2: for erofsfuse'
+)
+source=($url/snapshot/$pkgname-$pkgver.tar.gz)
+sha512sums=('0a9d593a9fef3c5976dc63e2927f47d070121ed07e6dda727b0a715b72cfe560c83bdf26ce41fe07b8cb5b66b0660105848e3f7c5a84f222296eb422d1cd5cba')
+b2sums=('69a2b93c0ba8c50fb3f75a53cc224490ab31f55e24055932091e85032a637c2be6d937ab42f068a2937e5b9d8b6054fd756e89b9333f47a6b6b35c20a421ed49')
+
+prepare() {
+  cd $pkgname-$pkgver
+  autoreconf -fiv
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --enable-fuse --enable-lzma
+  make
+}
+
+check() {
+  make -k check -C $pkgname-$pkgver
+}
+
+package() {
+  depends+=(
+    util-linux libuuid.so
+    xz liblzma.so
+  )
+
+  make DESTDIR="$pkgdir/" install -C $pkgname-$pkgver
+  install -vDm 644 $pkgname-$pkgver/{AUTHORS,ChangeLog,README} -t "$pkgdir/usr/share/doc/$pkgname/"
+}

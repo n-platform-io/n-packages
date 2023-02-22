@@ -1,0 +1,32 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+_name=pyphen
+pkgname=python-pyphen
+pkgver=0.13.2
+pkgrel=1
+pkgdesc="Pure Python module to hyphenate text"
+arch=(any)
+url="https://pyphen.org/"
+license=(GPL2 LGPL2.1 MPL)
+depends=(python)
+makedepends=(python-build python-flit-core python-installer python-wheel)
+checkdepends=(python-pytest)
+source=(https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz)
+sha512sums=('1f6388050b6ac4fed26d67fde6adfa78b95da22cdc4aac3f45e273455fb3d7acf9d2dd019248c04048a9361e7d3aa6c954136426a520799eb51e1fab7e539c80')
+b2sums=('77b9f257bd171a2f5e57a2d8cba78e86f8badff6ff0bd130eebca99f931552e5d4d82bc81273afb15dc11c8635be914b33062b078c9593bced7a353c69d905ab')
+
+build() {
+  cd $_name-$pkgver
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd $_name-$pkgver
+  pytest -v -c /dev/null tests/
+}
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm 644 README.rst -t "$pkgdir/usr/share/doc/$pkgname/"
+}

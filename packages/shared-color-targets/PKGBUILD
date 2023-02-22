@@ -1,0 +1,41 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Ionut Biru <ibiru@archlinux.org>
+
+pkgname=shared-color-targets
+pkgver=0.1.7
+pkgrel=4
+pkgdesc="Shared color targets for creating color profiles"
+url="https://github.com/hughsie/shared-color-targets"
+arch=(any)
+license=(GPL CCPL:by-sa)
+makedepends=(git)
+_commit=b6ea84551a9d51f3b07de9a2863b113ec8dc7303  # tags/SHARED_COLOR_TARGETS_0_1_7^0
+source=("git+https://github.com/hughsie/shared-color-targets#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^SHARED_COLOR_TARGETS_//;s/_/./g;s/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd $pkgname
+  ./configure --prefix=/usr
+  make
+}
+
+check() {
+  make -C $pkgname check
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}
+
+# vim:set sw=2 sts=-1 et:

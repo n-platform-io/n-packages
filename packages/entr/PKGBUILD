@@ -1,0 +1,37 @@
+# Maintainer: Filipe Laíns (FFY00) <lains@archlinux.org>
+
+pkgname=entr
+pkgver=5.2
+pkgrel=1
+pkgdesc='Run arbitrary commands when files change'
+arch=('x86_64')
+url='http://eradman.com/entrproject'
+license=('MIT')
+validpgpkeys=('519151D83E83D40A232B4D615C418B8631BC7C26' '5C418B8631BC7C26') # Eric Radman <ericshane@eradman.com>
+source=("$url/code/$pkgname-$pkgver.tar.gz"{,.asc})
+sha512sums=('b12310b6695f0b3d3d830b651dd182ddf2321aad38f569066cc2e5b17570070e48eb4900725c88c1d31a8ff71099aba78fb7508ad60706265cbdf8f29257eaaa'
+            'SKIP')
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PREFIX='/usr'
+
+  ./configure
+
+  make
+}
+
+check() {
+  cd $pkgname-$pkgver
+
+  make test
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  make DESTDIR="$pkgdir" install
+
+  install -Dm 644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

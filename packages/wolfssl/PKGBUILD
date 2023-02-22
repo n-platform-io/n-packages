@@ -1,0 +1,52 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgname=wolfssl
+pkgver=5.5.4
+pkgrel=1
+pkgdesc="Lightweight, portable, C-language-based SSL/TLS library"
+arch=(x86_64)
+url="https://www.wolfssl.com/"
+license=(GPL2)
+depends=(glibc)
+makedepends=(cmake)
+provides=(libwolfssl.so)
+source=(
+  $pkgname-$pkgver-stable.tar.gz::https://github.com/$pkgname/$pkgname/archive/refs/tags/v$pkgver-stable.tar.gz
+  https://github.com/$pkgname/$pkgname/releases/download/v$pkgver-stable/$pkgname-$pkgver-stable.tar.gz.asc
+)
+sha512sums=('6ecb37d614ae7b8ea9caa5bedebe2bb16b2719e172e146fc707ce1ead09a6c4d168b8e8aa52255d4cf0341a0617f17d7f4b321ba88aaa77664861c31ca7a1163'
+            'SKIP')
+b2sums=('e3ee1e93b850cbe60909ed8811841b3ea6f05e6fa610f542a312a57d7dff7e7247118e12fd79363debfc94f6520dbfe167ac3a3c5c073fe4197ff8d1842d17ce'
+        'SKIP')
+validpgpkeys=(
+  A2A48E7BCB96C5BECB987314EBC80E415CA29677  # wolfSSL <secure@wolfssl.com>
+)
+
+build() {
+  local cmake_options=(
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCMAKE_BUILD_TYPE=None
+    -DWOLFSSL_CURVE25519=ON
+    -DWOLFSSL_CURVE448=ON
+    -DWOLFSSL_ED25519=ON
+    -DWOLFSSL_ED448=ON
+    -DWOLFSSL_REPRODUCIBLE_BUILD=ON
+    -DWARNING_C_FLAGS="$CFLAGS"
+    -Wno-dev
+    -B build
+    -S $pkgname-$pkgver-stable
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build --verbose
+}
+
+check() {
+  cd build
+  ctest --output-on-failure
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $pkgname-$pkgver-stable/{README,ChangeLog}.md -t "$pkgdir/usr/share/doc/$pkgname/"
+}

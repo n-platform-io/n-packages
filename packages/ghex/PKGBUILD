@@ -1,0 +1,54 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+# Contributor: Tobias Kieslich <tobias@justdreams.de>
+
+pkgbase=ghex
+pkgname=(ghex ghex-docs)
+pkgver=43.1
+pkgrel=1
+pkgdesc="A simple binary editor for the Gnome desktop"
+url="https://wiki.gnome.org/Apps/Ghex"
+arch=(x86_64)
+license=(GPL)
+depends=(libadwaita)
+makedepends=(git meson yelp-tools gobject-introspection gi-docgen)
+_commit=da9469b370526f406ec9c0a71044b9ce07cc6bc2  # tags/43.1^0
+source=("git+https://gitlab.gnome.org/GNOME/ghex.git#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd ghex
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd ghex
+}
+
+build() {
+  arch-meson ghex build -D gtk_doc=true
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package_ghex() {
+  provides=(libgtkhex-4.so)
+  groups=(gnome-extra)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_ghex-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

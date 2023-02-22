@@ -1,0 +1,48 @@
+# Maintainer: Johannes Löthberg <johannes@kyriasis.com>
+# Maintainer: George Rawlinson <grawlinson@archlinux.org>
+
+pkgname=libzen
+pkgver=0.4.40
+pkgrel=1
+
+pkgdesc="shared library for libmediainfo and mediainfo"
+url="https://mediaarea.net"
+arch=('x86_64')
+license=('BSD')
+
+depends=('gcc-libs')
+makedepends=('libtool' 'automake' 'autoconf')
+
+source=(https://mediaarea.net/download/source/libzen/$pkgver/libzen_$pkgver.tar.bz2)
+
+sha512sums=('80acb52c4f8d46ffe5bc36113ffb2027a3821da8019e0256ddc7b55f619f26e1b1b90758c5a841b3873dbbd21da5490604bf81d7f4588844aa80ef2d62055b78')
+b2sums=('15a1697f83934ae70d4fe0ec098b5a4805b070ceeeb9b5e18fcb93533735fffcfc1a68a1044eb687e030be2a1e07fd04f982b866b00ef286cbe032fbea9a6345')
+
+build() {
+  cd ZenLib/Project/GNU/Library
+
+  ./autogen.sh
+  ./configure --prefix=/usr --enable-shared
+  make
+}
+
+package() {
+  cd ZenLib/Project/GNU/Library
+
+  make DESTDIR="$pkgdir" install
+
+  install -dm 755 "$pkgdir"/usr/include/ZenLib
+  install -m 644 "$srcdir"/ZenLib/Source/ZenLib/*.h "$pkgdir"/usr/include/ZenLib
+
+  for i in HTTP_Client Format/Html Format/Http; do
+    install -dm0755 "$pkgdir"/usr/include/ZenLib/$i
+    install -m0644 "$srcdir"/ZenLib/Source/ZenLib/$i/*.h "$pkgdir"/usr/include/ZenLib/$i
+  done
+
+  install -dm 755 "$pkgdir"/usr/lib/pkgconfig
+  install -m 644 "$srcdir"/ZenLib/Project/GNU/Library/libzen.pc "$pkgdir"/usr/lib/pkgconfig
+
+  sed -i -e 's|Version: $|Version: '$pkgver'|g' "$pkgdir"/usr/lib/pkgconfig/libzen.pc
+
+  install -D -m 644 "$srcdir"/ZenLib/License.txt "$pkgdir"/usr/share/licenses/libzen/License.txt
+}

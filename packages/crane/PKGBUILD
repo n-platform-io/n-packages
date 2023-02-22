@@ -1,0 +1,39 @@
+# Maintainer: kpcyrd <kpcyrd[at]archlinux[dot]org>
+
+pkgname=crane
+_pkgname=go-containerregistry
+pkgver=0.13.0
+pkgrel=1
+pkgdesc="Interacting with remote container images and registries."
+arch=('x86_64')
+url="https://github.com/google/go-containerregistry"
+license=('Apache-2.0')
+makedepends=('go')
+source=(https://github.com/google/${_pkgname}/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha256sums=('e5946a3cab514085278386cf9962a3591def359dbc213c06e7a53501766590fd')
+b2sums=('b8aa1fb21742062167d7670bf65075b61a62d6b03b55419ec2ac4e388622c92ca3d43595559ba0190b4721bb71119931f33a76cbabd507b3551d44acc58a77a1')
+
+build() {
+  cd ${_pkgname}-${pkgver}
+
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
+
+  go build ./cmd/crane
+  go build ./cmd/gcrane
+
+  cd cmd/krane
+  go build .
+}
+
+package() {
+  cd ${_pkgname}-${pkgver}
+  install -Dm755 -t "${pkgdir}/usr/bin" \
+    crane gcrane cmd/krane/krane
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+# vim: ts=2 sw=2 et:

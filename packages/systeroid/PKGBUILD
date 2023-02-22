@@ -1,0 +1,40 @@
+# Maintainer: Orhun Parmaksız <orhun@archlinux.org>
+
+pkgname=systeroid
+pkgver=0.3.1
+pkgrel=1
+pkgdesc="A more powerful alternative to sysctl"
+arch=('x86_64')
+url="https://github.com/orhun/systeroid"
+license=('MIT' 'Apache')
+depends=('libxcb' 'libxkbcommon' 'linux-docs')
+makedepends=('cargo' 'python')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha512sums=('2d2d0e0ed00bf5abbc6e359a47bc0ed2f411f47e10d497cc3cb1bf650bb33f978e36e83f5d4b0d56c4f4544748a2bfbca765dbd29c915872eb0613c4ca257332')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  cargo build --release --frozen
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  NO_COLOR=1 cargo test --frozen --no-default-features
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm 755 "target/release/$pkgname" -t "$pkgdir/usr/bin"
+  install -Dm 755 "target/release/$pkgname-tui" -t "$pkgdir/usr/bin"
+  install -Dm 644 README.md -t "$pkgdir/usr/share/doc/$pkgname"
+  install -Dm 644 LICENSE-MIT -t "$pkgdir/usr/share/licenses/$pkgname"
+  install -Dm 644 "man8/$pkgname.8" -t "$pkgdir/usr/share/man/man8"
+  install -Dm 644 "man8/$pkgname-tui.8" -t "$pkgdir/usr/share/man/man8"
+}
+
+# vim: ts=2 sw=2 et:

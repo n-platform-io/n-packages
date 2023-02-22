@@ -1,0 +1,37 @@
+# Maintainer: kpcyrd <kpcyrd[at]archlinux[dot]org>
+# Contributor: Eduard Tolosa <edu4rdshl@protonmail.com>
+
+pkgname=findomain
+_pkgname=Findomain
+pkgver=8.2.2
+pkgrel=1
+pkgdesc='The fastest and cross-platform subdomain enumerator, do not waste your time'
+url='https://github.com/Findomain/Findomain'
+arch=('x86_64')
+license=('GPL3')
+depends=('gcc-libs')
+makedepends=('cargo')
+optdepends=('postgresql: for subdomain monitoring')
+source=("https://github.com/${_pkgname}/${_pkgname}/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+b2sums=('82e06aa9103583607e86af0035e315d59ee042778a158ace29480e663a381bd454ddbca36c6e0b373ac55e6064469eb21622af2d3be86e8ea4223dae595f2b64')
+options=(!lto)
+
+build() {
+  cd ${_pkgname}-${pkgver}
+  cargo build --release --locked
+}
+
+check() {
+  cd ${_pkgname}-${pkgver}
+  cargo test --release --locked
+}
+
+package() {
+  cd ${_pkgname}-${pkgver}
+
+  install -Dm 755 "target/release/${pkgname}" -t "${pkgdir}/usr/bin"
+  install -Dm 644 README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+  install -Dm 644 "${pkgname}.1" -t "${pkgdir}/usr/share/man/man1"
+}
+
+# vim: ts=2 sw=2 et:

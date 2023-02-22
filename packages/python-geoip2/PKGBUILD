@@ -1,0 +1,38 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=python-geoip2
+pkgver=4.6.0
+_testdatacommit=2b37923df61aa3b5fb6c7edfbf4dc5fafa10258a
+pkgrel=1
+pkgdesc="MaxMind GeoIP2 API"
+url="https://github.com/maxmind/GeoIP2-python"
+license=('Apache')
+arch=('any')
+depends=('python-aiohttp' 'python-maxminddb' 'python-requests')
+makedepends=('python-setuptools')
+checkdepends=('python-mocket')
+source=("https://github.com/maxmind/GeoIP2-python/archive/v$pkgver/$pkgname-$pkgver.tar.gz"
+        MaxMind-DB-$_testdatacommit.tar.gz::https://github.com/maxmind/MaxMind-DB/archive/$_testdatacommit.tar.gz)
+sha512sums=('c500eea45d84cd84a110298f2f76594f07887cd66c2a66f4becf8a6e7d97cc1074b7e1fb8f136f91e705d5a054d1f89bab89d66ab8fede96426df8cf5d7a3440'
+            'a192a9fec623ffb84e369289292bf4a87d91e9a604494583f3bff293eeed56ca1bc1e8db3f89dbccddafe8b35a1d0340ac754998a2c84f6e4d70dfc4d4c7aa1d')
+
+prepare() {
+  cd GeoIP2-python-$pkgver
+  rmdir tests/data
+  ln -s "$srcdir"/MaxMind-DB-$_testdatacommit tests/data
+}
+
+build() {
+  cd GeoIP2-python-$pkgver
+  python setup.py build
+}
+
+check() {
+  cd GeoIP2-python-$pkgver
+  python setup.py test
+}
+
+package() {
+  cd GeoIP2-python-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+}

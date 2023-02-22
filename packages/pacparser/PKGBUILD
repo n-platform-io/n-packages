@@ -1,0 +1,24 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Max Meyer <dev@fedux.org>
+
+pkgname=pacparser
+pkgver=1.4.0
+pkgrel=1
+pkgdesc="Library to parse proxy auto-config (PAC) files"
+arch=(x86_64)
+url="https://github.com/pacparser/pacparser"
+license=('LGPL')
+source=("https://github.com/pacparser/pacparser/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('9574068dc4da3db27ddc1242cf98d98ebc7515864789e95b700cd2ce1433a7cff84160f1507976488fab7529839cabe9cf2aa16ddbefc0c83009fa6c0d2ad6b3')
+
+build() {
+  cd $pkgname-$pkgver
+  make all -C src
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make -C src DESTDIR="$pkgdir/" install
+}
+
+# vim:set ts=2 sw=2 et:

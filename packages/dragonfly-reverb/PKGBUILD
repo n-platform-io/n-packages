@@ -1,0 +1,135 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+pkgbase=dragonfly-reverb
+pkgname=(dragonfly-reverb dragonfly-reverb-clap dragonfly-reverb-jack dragonfly-reverb-lv2 dragonfly-reverb-vst dragonfly-reverb-vst3)
+_name=DragonflyReverb
+pkgver=3.2.8
+pkgrel=1
+pkgdesc="A concert hall reverb and a room reverb"
+arch=(x86_64)
+url="https://michaelwillis.github.io/dragonfly-reverb/"
+license=(GPL3)
+makedepends=(freeverb3 gcc-libs glibc gendesk jack libglvnd libsamplerate libx11 libxext lv2)
+checkdepends=(lv2lint)
+source=(https://github.com/michaelwillis/$pkgbase/releases/download/$pkgver/$pkgbase-$pkgver-source.tar.gz)
+sha512sums=('52780e0efc70d508a3856e4104879e3fcfbcac577192ad681cef702e682dc83d8336444f955890ff8a5dd73f9514eeb0bfb8031bd86e485da6d24aec3f30b77b')
+b2sums=('a50440220139e44f4da3e1a70814c3df42b176768c022b438d1af4bef24bc523ca59b9157de88dabb400773205b981b34c5d70bc78853a29d568ea11a7127c59')
+_names=(DragonflyEarlyReflections DragonflyHallReverb DragonflyPlateReverb DragonflyRoomReverb)
+_common_depends=(
+  gcc-libs
+  glibc
+  libglvnd libGL.so
+  freeverb3 libfreeverb3.so
+  libx11
+  libxext
+)
+
+prepare() {
+  declare -A _description=(
+    ["DragonflyEarlyReflections"]="A free stereo-to-stereo early reflections reverb effect"
+    ["DragonflyHallReverb"]="A free stereo-to-stereo concert hall reverb effect"
+    ["DragonflyPlateReverb"]="A free stereo-to-stereo plate reverb effect"
+    ["DragonflyRoomReverb"]="A free stereo-to-stereo room reverb effect"
+  )
+  declare -A _generic=(
+    ["DragonflyEarlyReflections"]="Early Reflections Reverb"
+    ["DragonflyHallReverb"]="Concert Hall Reverb"
+    ["DragonflyPlateReverb"]="Plate Reverb"
+    ["DragonflyRoomReverb"]="Room Reverb"
+  )
+
+  cd $_name-Source-v$pkgver
+
+  # explicitly remove vendored freeverb as it causes issues: https://github.com/michaelwillis/dragonfly-reverb/issues/129
+  rm -frv common/freeverb/
+
+  for name in "${_names[@]}"; do
+    gendesk -n \
+            --pkgname io.github.michaelwillis.$name \
+            --name $name \
+            --exec $name \
+            --pkgdesc "${comments[$name]}" \
+            --genericname "${generic[$name]}" \
+            --categories "AudioVideo;Audio"
+  done
+}
+
+build() {
+  export SYSTEM_FREEVERB3="true"
+  make -C $_name-Source-v$pkgver
+}
+
+check() {
+  local _plugin_name=""
+  declare -A _urls=(
+    ["DragonflyHallReverb"]='https://github.com/michaelwillis/dragonfly-reverb'
+    ["DragonflyEarlyReflections"]='urn:dragonfly:early'
+    ["DragonflyPlateReverb"]='urn:dragonfly:plate'
+    ["DragonflyRoomReverb"]='urn:dragonfly:room'
+  )
+
+  for _plugin_name in "${_names[@]}"; do
+    lv2lint -Mpack -s "lv2_generate_ttl" -I $_name-Source-v$pkgver/bin/$_plugin_name.lv2/ "${_urls[$_plugin_name]}"
+  done
+}
+
+package_dragonfly-reverb() {
+  depends=(dragonfly-reverb-{clap,jack,lv2,vst,vst3}=$pkgver-$pkgrel)
+}
+
+package_dragonfly-reverb-clap() {
+  pkgdesc+=" - CLAP plugin"
+  depends=("${_common_depends[@]}" clap-host)
+  groups=(clap-plugins pro-audio)
+
+  cd $_name-Source-v$pkgver
+  for name in "${_names[@]}"; do
+    install -vDm 755 bin/$name.clap -t "$pkgdir/usr/lib/clap/"
+  done
+}
+
+package_dragonfly-reverb-jack() {
+  pkgdesc+=" - JACK standalone"
+  depends=("${_common_depends[@]}" jack)
+
+  cd $_name-Source-v$pkgver
+  for name in "${_names[@]}"; do
+    install -vDm 755 bin/$name -t "$pkgdir/usr/bin"
+  done
+  install -vDm 644 *.desktop -t "$pkgdir/usr/share/applications/"
+  install -vDm 644 README.md -t "$pkgdir/usr/share/doc/$pkgname"
+}
+
+package_dragonfly-reverb-lv2() {
+  pkgdesc+=" - LV2 plugin"
+  depends=("${_common_depends[@]}" lv2-host)
+  groups=(lv2-plugins pro-audio)
+
+  cd $_name-Source-v$pkgver
+  for name in "${_names[@]}"; do
+    install -vDm 755 bin/$name.lv2/*.so -t "$pkgdir/usr/lib/lv2/$name.lv2/"
+    install -vDm 644 bin/$name.lv2/*.ttl -t "$pkgdir/usr/lib/lv2/$name.lv2/"
+  done
+}
+
+package_dragonfly-reverb-vst() {
+  pkgdesc+=" - VST plugin"
+  depends=("${_common_depends[@]}" vst-host)
+  groups=(pro-audio vst-plugins)
+
+  cd $_name-Source-v$pkgver
+  for name in "${_names[@]}"; do
+    install -vDm 755 bin/$name-vst.so -t "$pkgdir/usr/lib/vst"
+  done
+}
+
+package_dragonfly-reverb-vst3() {
+  pkgdesc+=" - VST3 plugin"
+  depends=("${_common_depends[@]}" vst3-host)
+  groups=(pro-audio vst3-plugins)
+
+  cd $_name-Source-v$pkgver
+  for name in "${_names[@]}"; do
+    install -vDm 755 bin/$name.vst3/Contents/$CARCH-linux/$name.so -t "$pkgdir/usr/lib/vst3/"
+  done
+}
